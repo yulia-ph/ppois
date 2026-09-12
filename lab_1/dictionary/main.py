@@ -1,94 +1,134 @@
-class DictionaryItem:
+import json
+from pathlib import Path
 
-    def __init__(self, key, value, left_child=None, right_child=None):
-        self.key = key
-        self.value = value
-        self.left_child = left_child
-        self.right_child = right_child
+class DictionaryNode:
+
+    def __init__(self, k, v, left_child=None, right_child=None):
+        self._key = k
+        self._value = v
+        self._left_child = left_child
+        self._right_child = right_child
 
     def __str__(self):
-        return f"{self.key} : {self.value}"
+        return f"{self._key} : {self._value}"
 
 class Dictionary:
 
     def __init__(self):
-        self.root=None
-        self.size = 0
+        self._root=None
+        self._size = 0
 
-    def add_item(self, key, value):
-        flag = True
-        if not self.root:
-            self.root = DictionaryItem(key, value)
-            flag = False
-        cur_node = self.root
-        while flag:
-            if key == cur_node.key:
-                cur_node.value = value
-                return f"The translation of {cur_node.key} is changed to {value}"
-            if key < cur_node.key:
-                if not cur_node.left_child:
-                    cur_node.left_child = DictionaryItem(key, value)
+    def add_node(self, k, v):
+        """Returns True if the node is added to the dictionary, False if edited"""
+
+        if not self._root:
+            self._root = DictionaryNode(k, v)
+            self._size += 1
+            return True
+
+        cur_node = self._root
+        while True:
+            if k == cur_node._key:
+                cur_node._value = v
+                return False
+            if k < cur_node._key:
+                if not cur_node._left_child:
+                    cur_node._left_child = DictionaryNode(k, v)
                     break
-                cur_node = cur_node.left_child
-            elif key > cur_node.key:
-                if not cur_node.right_child:
-                    cur_node.right_child = DictionaryItem(key, value)
+                cur_node = cur_node._left_child
+            elif k > cur_node._key:
+                if not cur_node._right_child:
+                    cur_node._right_child = DictionaryNode(k, v)
                     break
-                cur_node = cur_node.right_child
-        self.size += 1
-        return f"New translation is added to the dictionary {key} : {value}"
+                cur_node = cur_node._right_child
 
-    def find_item(self, key):
-        cur_node = self.root
-        while cur_node is not None and cur_node.key != key:
-            if  key < cur_node.key:
-                cur_node = cur_node.left_child
-            elif key > cur_node.key:
-                cur_node = cur_node.right_child
-        if cur_node is None or cur_node.key != key:
-            return "failed"
-        return cur_node
+        self._size += 1
+        return True
 
-    def delete_item(self, key):
+    def find_node(self, k):
+        """Returns True if the node is found in the dictionary, False otherwise"""
+
+        cur_node = self._root
+        while cur_node is not None and cur_node._key != k:
+            if  k < cur_node._key:
+                cur_node = cur_node._left_child
+            elif k > cur_node._key:
+                cur_node = cur_node._right_child
+        if cur_node is None or cur_node._key != k:
+            return False
+        return True
+
+    def delete_node(self, k):
+        """Returns True if the node is deleted from the dictionary, False otherwise"""
+
         prev_node = None
-        cur_node = self.root
+        cur_node = self._root
 
-        while cur_node is not None and cur_node.key != key:
+        while cur_node is not None and cur_node._key != k:
             prev_node = cur_node
-            cur_node = cur_node.left_child if key < cur_node.key else cur_node.right_child
+            cur_node = cur_node._left_child if k < cur_node._key else cur_node._right_child
 
         if cur_node is None:
-            return "failed"
+            return False
 
-        if cur_node.left_child is not None and cur_node.right_child is not None:
+        if cur_node._left_child is not None and cur_node._right_child is not None:
             prev_replace_node = cur_node
-            replace_node = cur_node.right_child
+            replace_node = cur_node._right_child
 
-            while replace_node.left_child is not None:
+            while replace_node._left_child is not None:
                 prev_replace_node = replace_node
-                replace_node = replace_node.left_child
+                replace_node = replace_node._left_child
 
-            cur_node.key=replace_node.key
-            cur_node.value=replace_node.value
+            cur_node._key=replace_node._key
+            cur_node._value=replace_node._value
             prev_node = prev_replace_node
             cur_node = replace_node
 
-        child = cur_node.left_child if key < cur_node.key else cur_node.right_child
+        child = cur_node._left_child if cur_node._left_child is not None else cur_node._right_child
 
         if prev_node is None:
-            self.root = child
-        elif cur_node.key < prev_node.key:
-            prev_node.left_child = child
+            self._root = child
+        elif cur_node._key < prev_node._key:
+            prev_node._left_child = child
         else:
-            prev_node.right_child = child
-        self.size -= 1
-        return "complete"
+            prev_node._right_child = child
+        self._size -= 1
+        return True
 
     def __len__(self):
-        return self.size
+        return self._size
 
-    def load_dictionary(self):
-        pass
+    def pack_dictionary(self):
+        """Returns a dict of translations from the dictionary"""
+        def traverse(node):
+            if node is None:
+                return
+            yield from traverse(node._left_child)
+            yield node._key, node._value
+            yield from traverse(node._right_child)
 
-    def view_dictionary(self):
-        pass
+        return dict(traverse(self._root))
+
+    def save_dictionary(self, path):
+        """Saves the dictionary to the given path"""
+        path = Path(path)
+        data = self.pack_dictionary()
+        with path.open("w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    def load_dictionary(self, path):
+        """Loads the dictionary from the given path"""
+        file_path = Path(path)
+        with file_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if not isinstance(data, dict):
+            raise ValueError(f"Expected JSON object, got {type(data).__name__}")
+
+        for k, v in data.items():
+            if not isinstance(k, str):
+                raise TypeError(f"Key must be str, got {type(k).__name__}: {k}")
+            if not isinstance(v, str):
+                raise ValueError(f"Value must be str, got {type(v).__name__}: {v}")
+            self.add_node(k, v)
+
