@@ -1,7 +1,9 @@
 """Console interface for the Dictionary."""
 
 import json
+
 from dictionary import Dictionary
+
 
 def show_menu():
     """Print the main menu."""

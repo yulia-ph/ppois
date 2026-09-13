@@ -1,5 +1,6 @@
 """Tests for the Dictionary class."""
 import json
+
 import pytest
 from dictionary import Dictionary
 

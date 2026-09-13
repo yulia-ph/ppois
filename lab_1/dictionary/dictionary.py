@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+
 class DictionaryNode:
     """A single node of the BST. Internal use only."""
     def __init__(self, k, v, left_child=None, right_child=None):
