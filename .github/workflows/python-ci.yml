@@ -1,0 +1,53 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+    paths:
+      - 'lab_1/**'
+      - '.github/workflows/python-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'lab_1/**'
+
+jobs:
+  test-and-build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r lab_1/dictionary/requirements-dev.txt
+
+      - name: Lint with ruff
+        run: ruff check lab_1/
+
+      - name: Run tests with coverage
+        run: pytest lab_1/ --cov=lab_1 --cov-report=term-missing --cov-fail-under=90
+
+      - name: Build dictionary binary
+        working-directory: lab_1/dictionary
+        run: pyinstaller --onefile --name dictionary main.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries
+          path: lab_1/dictionary/dist/dictionary
+
+      - name: Publish to Releases
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: lab_1/dictionary/dist/dictionary
