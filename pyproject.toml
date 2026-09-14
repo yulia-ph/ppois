@@ -3,3 +3,9 @@ name = "ppois"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = []
+[tool.coverage.run]
+omit = [
+    "*/main.py",
+    "*/test_*.py",
+    "*_test.py",
+]

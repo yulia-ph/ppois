@@ -44,7 +44,7 @@ class Polynomial:
         return coefficients
 
     def __str__(self):
-        """Return a human-readable string representation of the polynomial."""
+        """@public Return a human-readable string representation of the polynomial."""
         if not self._coefficients:
             return "0"
 
@@ -73,7 +73,7 @@ class Polynomial:
 
     @classmethod
     def _from_internal(cls, coefficients):
-        """Build a polynomial from internal-ordered coefficients.
+        """@public Build a polynomial from internal-ordered coefficients.
 
             Bypasses __init__ and assumes coefficients are already
             ordered from lowest to highest degree.
@@ -84,7 +84,7 @@ class Polynomial:
         return new_poly
 
     def __add__(self, other):
-        """Return the sum of two polynomials.
+        """@public Return the sum of two polynomials.
 
             Raises:
                 TypeError: if other is not a Polynomial.
@@ -100,7 +100,7 @@ class Polynomial:
         return self._from_internal(coef)
 
     def __sub__(self, other):
-        """Return the difference of two polynomials.
+        """@public Return the difference of two polynomials.
 
             Raises:
                 TypeError: if other is not a Polynomial.
@@ -116,7 +116,7 @@ class Polynomial:
         return self._from_internal(coef)
 
     def __mul__(self, other):
-        """Return the product of two polynomials.
+        """@public Return the product of two polynomials.
 
             Raises:
                 TypeError: if other is not a Polynomial.
@@ -134,7 +134,7 @@ class Polynomial:
         return self._from_internal(res)
 
     def __getitem__(self, degree):
-        """Return the coefficient of x^degree.
+        """@public Return the coefficient of x^degree.
 
             Returns:
                 The coefficient, or 0 if degree is out of range.
@@ -150,7 +150,7 @@ class Polynomial:
         return self._coefficients[degree]
 
     def __call__(self, x):
-        """Evaluate the polynomial at x using Horner's scheme.
+        """@public Evaluate the polynomial at x using Horner's scheme.
 
             Raises:
                 TypeError: if x is not an int or float.
@@ -165,7 +165,7 @@ class Polynomial:
         return result
 
     def __divmod__(self, other):
-        """Return (quotient, remainder) of polynomial division.
+        """@public Return (quotient, remainder) of polynomial division.
 
             Returns:
                 A tuple (Q, R) such that self == other * Q + R
@@ -202,31 +202,31 @@ class Polynomial:
         return self._from_internal(quotient), self._from_internal(dividend)
 
     def __truediv__(self, other):
-        """Return the quotient of polynomial division."""
+        """@public Return the quotient of polynomial division."""
         q, _ = divmod(self, other)
         return q
 
     def __mod__(self, other):
-        """Return the remainder of polynomial division."""
+        """@public Return the remainder of polynomial division."""
         _, r = divmod(self, other)
         return r
 
     def __iadd__(self, other):
-        """In-place addition. Updates self and returns it."""
+        """@public In-place addition. Updates self and returns it."""
         self._coefficients = (self + other)._coefficients
         return self
 
     def __isub__(self, other):
-        """In-place subtraction. Updates self and returns it."""
+        """@public In-place subtraction. Updates self and returns it."""
         self._coefficients = (self - other)._coefficients
         return self
 
     def __imul__(self, other):
-        """In-place multiplication. Updates self and returns it."""
+        """@public In-place multiplication. Updates self and returns it."""
         self._coefficients = (self * other)._coefficients
         return self
 
     def __itruediv__(self, other):
-        """In-place division. Updates self and returns it."""
+        """@public In-place division. Updates self and returns it."""
         self._coefficients = (self / other)._coefficients
         return self
