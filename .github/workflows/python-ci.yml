@@ -29,25 +29,37 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r lab_1/dictionary/requirements-dev.txt
+          pip install -r lab_1/polynomial/requirements-dev.txt
 
       - name: Lint with ruff
         run: ruff check lab_1/
 
-      - name: Run tests with coverage
-        run: pytest lab_1/ --cov=lab_1 --cov-report=term-missing --cov-fail-under=90
+      - name: Test dictionary
+        run: pytest lab_1/dictionary/ --cov=lab_1/dictionary --cov-report=term-missing --cov-fail-under=90
+        
+      - name: Test polynomial
+        run: pytest lab_1/polynomial/ --cov=lab_1/polynomial --cov-report=term-missing --cov-fail-under=90
 
       - name: Build dictionary binary
         working-directory: lab_1/dictionary
         run: pyinstaller --onefile --name dictionary main.py
 
+      - name: Build polynomial binary
+        working-directory: lab_1/polynomial
+        run: pyinstaller --onefile --name polynomial main.py
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: binaries
-          path: lab_1/dictionary/dist/dictionary
+          path: |
+            lab_1/dictionary/dist/dictionary
+            lab_1/polynomial/dist/polynomial
 
       - name: Publish to Releases
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: lab_1/dictionary/dist/dictionary
+          files: |
+            lab_1/dictionary/dist/dictionary
+            lab_1/polynomial/dist/polynomial
