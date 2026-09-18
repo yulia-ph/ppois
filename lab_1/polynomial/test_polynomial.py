@@ -1,4 +1,5 @@
 import pytest
+
 from polynomial import Polynomial
 
 

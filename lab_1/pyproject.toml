@@ -1,0 +1,27 @@
+[project]
+name = "lab_1"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.16.7",
+    "pyinstaller==6.22.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.pytest.ini_options]
+testpaths = ["dictionary", "polynomial"]
+
+[tool.coverage.run]
+omit = [
+    "*/main.py",
+    "*/test_*.py",
+    "*_test.py",
+]

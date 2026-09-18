@@ -2,6 +2,7 @@
 import json
 
 import pytest
+
 from dictionary import Dictionary
 
 
