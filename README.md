@@ -7,6 +7,7 @@ Laboratory works for the PPOIS course.
 | Lab | Language | Contents                                                           | Docs                                                                                                                                                             |
 |-----|----------|--------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1   | Python   | [Dictionary](./lab_1/dictionary), [Polynomial](./lab_1/polynomial) | [dictionary](https://yulia-ph.github.io/ppois/lab_1/dictionary/dictionary.html), [polynomial](https://yulia-ph.github.io/ppois/lab_1/polynomial/polynomial.html) |
+| 2   | Python   | [Lab_2](./lab_2)                                                   | -                                                                                                                                                                |
 
 ## Requirements
 
