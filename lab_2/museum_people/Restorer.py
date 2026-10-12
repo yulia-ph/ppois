@@ -1,0 +1,2 @@
+class Restorer:
+    pass

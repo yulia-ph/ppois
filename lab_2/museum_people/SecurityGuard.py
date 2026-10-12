@@ -1,0 +1,2 @@
+class SecurityGuard:
+    pass
