@@ -1,0 +1,2 @@
+class AudioGuide:
+    pass
