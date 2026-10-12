@@ -1,0 +1,2 @@
+class DigitalCopy:
+    pass
