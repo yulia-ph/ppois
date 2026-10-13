@@ -10,18 +10,45 @@ dev = [
     "pytest-cov==7.1.0",
     "ruff==0.16.7",
     "pyinstaller==6.22.3",
+    "pdoc==15.0.4",
 ]
+
+[tool.uv]
+package = false
 
 [tool.ruff]
 line-length = 100
 target-version = "py314"
 
+[tool.ruff.lint]
+ignore = [
+    "DTZ011",   # date.today()
+    "DTZ005",   # datetime.now()
+    "DTZ007",   # datetime.strptime
+    "DTZ001",   # datetime.datetime()
+    "N999",     # CamelCase files = one class per file
+    "RUF012",   # class-level dicts/sets are constants
+    "BLE001",   # blind except in main.py is intentional
+    "RUF013",   # legacy X = None style (or fix manually)
+]
+
+
 [tool.pytest.ini_options]
-testpaths = []
+testpaths = ["tests"]
 
 [tool.coverage.run]
+source = [
+    "museum_core",
+    "museum_exhibits",
+    "museum_people",
+    "museum_sales",
+    "museum_security",
+    "museum_events",
+    "museum_exhibitions",
+    "museum_documents",
+]
 omit = [
-    "*/main.py",
-    "*/test_*.py",
-    "*_test.py",
+    "main.py",
+    "tests/*",
+    "*/__init__.py",
 ]
