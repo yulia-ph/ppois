@@ -147,6 +147,9 @@ class Storage:
     def run_inventory(self, catalog_exhibits: list) -> dict:
         """Reconcile storage contents against a reference catalog.
 
+        Uses `Inventory.diff` so storage and inventory share one
+        missing/extra comparison.
+
         Args:
             catalog_exhibits: The list of exhibits that should be
                 present according to the catalog.
@@ -157,8 +160,8 @@ class Storage:
                 'extra': exhibits in storage but not in the catalog.
                 'is_clean': True if both lists are empty.
         """
-        missing = [ex for ex in catalog_exhibits if ex not in self._exhibits]
-        extra = [ex for ex in self._exhibits if ex not in catalog_exhibits]
+        from museum_documents.Inventory import Inventory
+        missing, extra = Inventory.diff(self._exhibits, catalog_exhibits)
         return {
             "missing": missing,
             "extra": extra,

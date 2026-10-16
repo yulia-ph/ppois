@@ -76,6 +76,17 @@ class Inventory:
         """Return the number of scanned exhibits."""
         return len(self._scanned)
 
+    @staticmethod
+    def diff(found: list, catalog: list):
+        """Return (missing, extra) relative to a catalog.
+
+        Missing: in the catalog but not in `found`.
+        Extra: in `found` but not in the catalog.
+        """
+        missing = [ex for ex in catalog if ex not in found]
+        extra = [ex for ex in found if ex not in catalog]
+        return missing, extra
+
 
     def reconcile(self, catalog_exhibits: list):
         """Reconcile scanned exhibits against a catalog.
@@ -97,8 +108,7 @@ class Inventory:
                 reason="Inventory has already been reconciled",
             )
 
-        missing = [ex for ex in catalog_exhibits if ex not in self._scanned]
-        extra = [ex for ex in self._scanned if ex not in catalog_exhibits]
+        missing, extra = Inventory.diff(self._scanned, catalog_exhibits)
         self._mismatches = missing + extra
         self._reconciled = True
         return True
