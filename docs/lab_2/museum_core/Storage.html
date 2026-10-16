@@ -248,23 +248,26 @@
 </span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 </span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a><span class="w">        </span><span class="sd">"""Reconcile storage contents against a reference catalog.</span>
 </span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">        Args:</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a><span class="sd">            catalog_exhibits: The list of exhibits that should be</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="sd">                present according to the catalog.</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">        Returns:</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="sd">            A dict with keys:</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="sd">                'missing': exhibits in the catalog but not in storage.</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="sd">                'extra': exhibits in storage but not in the catalog.</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="sd">                'is_clean': True if both lists are empty.</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">        """</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span><span class="p">]</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span><span class="p">]</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>        <span class="k">return</span> <span class="p">{</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>            <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>            <span class="s2">"extra"</span><span class="p">:</span> <span class="n">extra</span><span class="p">,</span>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extra</span><span class="p">,</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>        <span class="p">}</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">        Uses `Inventory.diff` so storage and inventory share one</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a><span class="sd">        missing/extra comparison.</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a><span class="sd">        Args:</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">            catalog_exhibits: The list of exhibits that should be</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="sd">                present according to the catalog.</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="sd">        Returns:</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="sd">            A dict with keys:</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">                'missing': exhibits in the catalog but not in storage.</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">                'extra': exhibits in storage but not in the catalog.</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">                'is_clean': True if both lists are empty.</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="sd">        """</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Inventory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Inventory</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>        <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">)</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>            <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>            <span class="s2">"extra"</span><span class="p">:</span> <span class="n">extra</span><span class="p">,</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extra</span><span class="p">,</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>        <span class="p">}</span>
 </span></pre></div>
 
 
@@ -424,23 +427,26 @@
 </span><span id="Storage-148"><a href="#Storage-148"><span class="linenos">148</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 </span><span id="Storage-149"><a href="#Storage-149"><span class="linenos">149</span></a><span class="w">        </span><span class="sd">"""Reconcile storage contents against a reference catalog.</span>
 </span><span id="Storage-150"><a href="#Storage-150"><span class="linenos">150</span></a>
-</span><span id="Storage-151"><a href="#Storage-151"><span class="linenos">151</span></a><span class="sd">        Args:</span>
-</span><span id="Storage-152"><a href="#Storage-152"><span class="linenos">152</span></a><span class="sd">            catalog_exhibits: The list of exhibits that should be</span>
-</span><span id="Storage-153"><a href="#Storage-153"><span class="linenos">153</span></a><span class="sd">                present according to the catalog.</span>
-</span><span id="Storage-154"><a href="#Storage-154"><span class="linenos">154</span></a>
-</span><span id="Storage-155"><a href="#Storage-155"><span class="linenos">155</span></a><span class="sd">        Returns:</span>
-</span><span id="Storage-156"><a href="#Storage-156"><span class="linenos">156</span></a><span class="sd">            A dict with keys:</span>
-</span><span id="Storage-157"><a href="#Storage-157"><span class="linenos">157</span></a><span class="sd">                'missing': exhibits in the catalog but not in storage.</span>
-</span><span id="Storage-158"><a href="#Storage-158"><span class="linenos">158</span></a><span class="sd">                'extra': exhibits in storage but not in the catalog.</span>
-</span><span id="Storage-159"><a href="#Storage-159"><span class="linenos">159</span></a><span class="sd">                'is_clean': True if both lists are empty.</span>
-</span><span id="Storage-160"><a href="#Storage-160"><span class="linenos">160</span></a><span class="sd">        """</span>
-</span><span id="Storage-161"><a href="#Storage-161"><span class="linenos">161</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span><span class="p">]</span>
-</span><span id="Storage-162"><a href="#Storage-162"><span class="linenos">162</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span><span class="p">]</span>
-</span><span id="Storage-163"><a href="#Storage-163"><span class="linenos">163</span></a>        <span class="k">return</span> <span class="p">{</span>
-</span><span id="Storage-164"><a href="#Storage-164"><span class="linenos">164</span></a>            <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
-</span><span id="Storage-165"><a href="#Storage-165"><span class="linenos">165</span></a>            <span class="s2">"extra"</span><span class="p">:</span> <span class="n">extra</span><span class="p">,</span>
-</span><span id="Storage-166"><a href="#Storage-166"><span class="linenos">166</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extra</span><span class="p">,</span>
-</span><span id="Storage-167"><a href="#Storage-167"><span class="linenos">167</span></a>        <span class="p">}</span>
+</span><span id="Storage-151"><a href="#Storage-151"><span class="linenos">151</span></a><span class="sd">        Uses `Inventory.diff` so storage and inventory share one</span>
+</span><span id="Storage-152"><a href="#Storage-152"><span class="linenos">152</span></a><span class="sd">        missing/extra comparison.</span>
+</span><span id="Storage-153"><a href="#Storage-153"><span class="linenos">153</span></a>
+</span><span id="Storage-154"><a href="#Storage-154"><span class="linenos">154</span></a><span class="sd">        Args:</span>
+</span><span id="Storage-155"><a href="#Storage-155"><span class="linenos">155</span></a><span class="sd">            catalog_exhibits: The list of exhibits that should be</span>
+</span><span id="Storage-156"><a href="#Storage-156"><span class="linenos">156</span></a><span class="sd">                present according to the catalog.</span>
+</span><span id="Storage-157"><a href="#Storage-157"><span class="linenos">157</span></a>
+</span><span id="Storage-158"><a href="#Storage-158"><span class="linenos">158</span></a><span class="sd">        Returns:</span>
+</span><span id="Storage-159"><a href="#Storage-159"><span class="linenos">159</span></a><span class="sd">            A dict with keys:</span>
+</span><span id="Storage-160"><a href="#Storage-160"><span class="linenos">160</span></a><span class="sd">                'missing': exhibits in the catalog but not in storage.</span>
+</span><span id="Storage-161"><a href="#Storage-161"><span class="linenos">161</span></a><span class="sd">                'extra': exhibits in storage but not in the catalog.</span>
+</span><span id="Storage-162"><a href="#Storage-162"><span class="linenos">162</span></a><span class="sd">                'is_clean': True if both lists are empty.</span>
+</span><span id="Storage-163"><a href="#Storage-163"><span class="linenos">163</span></a><span class="sd">        """</span>
+</span><span id="Storage-164"><a href="#Storage-164"><span class="linenos">164</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Inventory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Inventory</span>
+</span><span id="Storage-165"><a href="#Storage-165"><span class="linenos">165</span></a>        <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">)</span>
+</span><span id="Storage-166"><a href="#Storage-166"><span class="linenos">166</span></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="Storage-167"><a href="#Storage-167"><span class="linenos">167</span></a>            <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
+</span><span id="Storage-168"><a href="#Storage-168"><span class="linenos">168</span></a>            <span class="s2">"extra"</span><span class="p">:</span> <span class="n">extra</span><span class="p">,</span>
+</span><span id="Storage-169"><a href="#Storage-169"><span class="linenos">169</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extra</span><span class="p">,</span>
+</span><span id="Storage-170"><a href="#Storage-170"><span class="linenos">170</span></a>        <span class="p">}</span>
 </span></pre></div>
 
 
@@ -842,27 +848,33 @@ running an inventory reconciliation against a reference catalog.</p>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Storage.run_inventory-148"><a href="#Storage.run_inventory-148"><span class="linenos">148</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 </span><span id="Storage.run_inventory-149"><a href="#Storage.run_inventory-149"><span class="linenos">149</span></a><span class="w">        </span><span class="sd">"""Reconcile storage contents against a reference catalog.</span>
 </span><span id="Storage.run_inventory-150"><a href="#Storage.run_inventory-150"><span class="linenos">150</span></a>
-</span><span id="Storage.run_inventory-151"><a href="#Storage.run_inventory-151"><span class="linenos">151</span></a><span class="sd">        Args:</span>
-</span><span id="Storage.run_inventory-152"><a href="#Storage.run_inventory-152"><span class="linenos">152</span></a><span class="sd">            catalog_exhibits: The list of exhibits that should be</span>
-</span><span id="Storage.run_inventory-153"><a href="#Storage.run_inventory-153"><span class="linenos">153</span></a><span class="sd">                present according to the catalog.</span>
-</span><span id="Storage.run_inventory-154"><a href="#Storage.run_inventory-154"><span class="linenos">154</span></a>
-</span><span id="Storage.run_inventory-155"><a href="#Storage.run_inventory-155"><span class="linenos">155</span></a><span class="sd">        Returns:</span>
-</span><span id="Storage.run_inventory-156"><a href="#Storage.run_inventory-156"><span class="linenos">156</span></a><span class="sd">            A dict with keys:</span>
-</span><span id="Storage.run_inventory-157"><a href="#Storage.run_inventory-157"><span class="linenos">157</span></a><span class="sd">                'missing': exhibits in the catalog but not in storage.</span>
-</span><span id="Storage.run_inventory-158"><a href="#Storage.run_inventory-158"><span class="linenos">158</span></a><span class="sd">                'extra': exhibits in storage but not in the catalog.</span>
-</span><span id="Storage.run_inventory-159"><a href="#Storage.run_inventory-159"><span class="linenos">159</span></a><span class="sd">                'is_clean': True if both lists are empty.</span>
-</span><span id="Storage.run_inventory-160"><a href="#Storage.run_inventory-160"><span class="linenos">160</span></a><span class="sd">        """</span>
-</span><span id="Storage.run_inventory-161"><a href="#Storage.run_inventory-161"><span class="linenos">161</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span><span class="p">]</span>
-</span><span id="Storage.run_inventory-162"><a href="#Storage.run_inventory-162"><span class="linenos">162</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span><span class="p">]</span>
-</span><span id="Storage.run_inventory-163"><a href="#Storage.run_inventory-163"><span class="linenos">163</span></a>        <span class="k">return</span> <span class="p">{</span>
-</span><span id="Storage.run_inventory-164"><a href="#Storage.run_inventory-164"><span class="linenos">164</span></a>            <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
-</span><span id="Storage.run_inventory-165"><a href="#Storage.run_inventory-165"><span class="linenos">165</span></a>            <span class="s2">"extra"</span><span class="p">:</span> <span class="n">extra</span><span class="p">,</span>
-</span><span id="Storage.run_inventory-166"><a href="#Storage.run_inventory-166"><span class="linenos">166</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extra</span><span class="p">,</span>
-</span><span id="Storage.run_inventory-167"><a href="#Storage.run_inventory-167"><span class="linenos">167</span></a>        <span class="p">}</span>
+</span><span id="Storage.run_inventory-151"><a href="#Storage.run_inventory-151"><span class="linenos">151</span></a><span class="sd">        Uses `Inventory.diff` so storage and inventory share one</span>
+</span><span id="Storage.run_inventory-152"><a href="#Storage.run_inventory-152"><span class="linenos">152</span></a><span class="sd">        missing/extra comparison.</span>
+</span><span id="Storage.run_inventory-153"><a href="#Storage.run_inventory-153"><span class="linenos">153</span></a>
+</span><span id="Storage.run_inventory-154"><a href="#Storage.run_inventory-154"><span class="linenos">154</span></a><span class="sd">        Args:</span>
+</span><span id="Storage.run_inventory-155"><a href="#Storage.run_inventory-155"><span class="linenos">155</span></a><span class="sd">            catalog_exhibits: The list of exhibits that should be</span>
+</span><span id="Storage.run_inventory-156"><a href="#Storage.run_inventory-156"><span class="linenos">156</span></a><span class="sd">                present according to the catalog.</span>
+</span><span id="Storage.run_inventory-157"><a href="#Storage.run_inventory-157"><span class="linenos">157</span></a>
+</span><span id="Storage.run_inventory-158"><a href="#Storage.run_inventory-158"><span class="linenos">158</span></a><span class="sd">        Returns:</span>
+</span><span id="Storage.run_inventory-159"><a href="#Storage.run_inventory-159"><span class="linenos">159</span></a><span class="sd">            A dict with keys:</span>
+</span><span id="Storage.run_inventory-160"><a href="#Storage.run_inventory-160"><span class="linenos">160</span></a><span class="sd">                'missing': exhibits in the catalog but not in storage.</span>
+</span><span id="Storage.run_inventory-161"><a href="#Storage.run_inventory-161"><span class="linenos">161</span></a><span class="sd">                'extra': exhibits in storage but not in the catalog.</span>
+</span><span id="Storage.run_inventory-162"><a href="#Storage.run_inventory-162"><span class="linenos">162</span></a><span class="sd">                'is_clean': True if both lists are empty.</span>
+</span><span id="Storage.run_inventory-163"><a href="#Storage.run_inventory-163"><span class="linenos">163</span></a><span class="sd">        """</span>
+</span><span id="Storage.run_inventory-164"><a href="#Storage.run_inventory-164"><span class="linenos">164</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Inventory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Inventory</span>
+</span><span id="Storage.run_inventory-165"><a href="#Storage.run_inventory-165"><span class="linenos">165</span></a>        <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exhibits</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">)</span>
+</span><span id="Storage.run_inventory-166"><a href="#Storage.run_inventory-166"><span class="linenos">166</span></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="Storage.run_inventory-167"><a href="#Storage.run_inventory-167"><span class="linenos">167</span></a>            <span class="s2">"missing"</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span>
+</span><span id="Storage.run_inventory-168"><a href="#Storage.run_inventory-168"><span class="linenos">168</span></a>            <span class="s2">"extra"</span><span class="p">:</span> <span class="n">extra</span><span class="p">,</span>
+</span><span id="Storage.run_inventory-169"><a href="#Storage.run_inventory-169"><span class="linenos">169</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extra</span><span class="p">,</span>
+</span><span id="Storage.run_inventory-170"><a href="#Storage.run_inventory-170"><span class="linenos">170</span></a>        <span class="p">}</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Reconcile storage contents against a reference catalog.</p>
+
+<p>Uses <code>Inventory.diff</code> so storage and inventory share one
+missing/extra comparison.</p>
 
 <p>Args:
     catalog_exhibits: The list of exhibits that should be

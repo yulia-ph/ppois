@@ -111,152 +111,156 @@
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Invoice</span><span class="p">:</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="w">    </span><span class="sd">"""An invoice issued to a payer.</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="w">    </span><span class="sd">"""A bill the museum must pay (supplier, restorer, insurer, etc.).</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">    An invoice moves through states:</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">        ISSUED -&gt; PAID</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="sd">               |</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">               v</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">           CANCELLED</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">    The amount can only be changed while the invoice is in the ISSUED</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">    state. Payment must match the invoice amount exactly.</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">    """</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">    `payer` is who settles the bill — here that is the museum.</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">    Paying goes through `Administrator.pay_invoice`, which also spends</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">    museum budget.</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">    An invoice moves through states:</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">        ISSUED -&gt; PAID</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">               |</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">               v</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">           CANCELLED</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>    <span class="n">STATUS_ISSUED</span> <span class="o">=</span> <span class="s2">"issued"</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="n">STATUS_PAID</span> <span class="o">=</span> <span class="s2">"paid"</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>    <span class="n">STATUS_CANCELLED</span> <span class="o">=</span> <span class="s2">"cancelled"</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">    The amount can only be changed while the invoice is in the ISSUED</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">    state. Payment must match the invoice amount exactly.</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="sd">    """</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="n">_counter</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">payer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="w">        </span><span class="sd">"""Initialize an invoice.</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="sd">        Args:</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="sd">            amount: Invoice amount. Must be positive.</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="sd">            payer: Payer name. Must not be empty.</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="n">STATUS_ISSUED</span> <span class="o">=</span> <span class="s2">"issued"</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="n">STATUS_PAID</span> <span class="o">=</span> <span class="s2">"paid"</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>    <span class="n">STATUS_CANCELLED</span> <span class="o">=</span> <span class="s2">"cancelled"</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>    <span class="n">_counter</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">payer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="w">        </span><span class="sd">"""Initialize an invoice.</span>
 </span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">        Raises:</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">            ValueError: If amount is not positive or payer is empty.</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">        """</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">payer</span><span class="p">:</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payer must not be empty"</span><span class="p">)</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>        <span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_number</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"INV-</span><span class="si">{</span><span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span><span class="si">:</span><span class="s2">05d</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">amount</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span> <span class="o">=</span> <span class="n">payer</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="nd">@property</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">        Args:</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">            amount: Invoice amount. Must be positive.</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">            payer: Payer name. Must not be empty.</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">        Raises:</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">            ValueError: If amount is not positive or payer is empty.</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">        """</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">payer</span><span class="p">:</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payer must not be empty"</span><span class="p">)</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_number</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"INV-</span><span class="si">{</span><span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span><span class="si">:</span><span class="s2">05d</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">amount</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span> <span class="o">=</span> <span class="n">payer</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="nd">@property</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="nd">@property</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="nd">@property</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="nd">@property</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">issued_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="nd">@property</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">paid_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">issued_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="nd">@property</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">paid_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="nd">@property</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_paid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="nd">@property</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_paid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payment</span><span class="p">):</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="w">        </span><span class="sd">"""Pay the invoice.</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">        Args:</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="sd">            payment: The payment. Must expose `.amount` and `.process()`.</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">        Raises:</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">            ValueError: If payment is None or its amount does not match.</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">            PaymentFailedException: Propagated from payment.process().</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">        """</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot pay an invoice that is not issued"</span><span class="p">,</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>            <span class="p">)</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="k">if</span> <span class="n">payment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payment must not be None"</span><span class="p">)</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="k">if</span> <span class="n">payment</span><span class="o">.</span><span class="n">amount</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="p">:</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>                <span class="sa">f</span><span class="s2">"Payment amount </span><span class="si">{</span><span class="n">payment</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> does not match "</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>                <span class="sa">f</span><span class="s2">"invoice amount </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>            <span class="p">)</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="n">payment</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="n">payment</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">"""Cancel the invoice.</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">        Raises:</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">        """</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot cancel an invoice that is not issued"</span><span class="p">,</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>            <span class="p">)</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">change_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="w">        </span><span class="sd">"""Change the invoice amount.</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="nd">@property</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payment</span><span class="p">):</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">        </span><span class="sd">"""Pay the invoice.</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">        Args:</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">            payment: The payment. Must expose `.amount` and `.process()`.</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">        Raises:</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">            ValueError: If payment is None or its amount does not match.</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">            PaymentFailedException: Propagated from payment.process().</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        """</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot pay an invoice that is not issued"</span><span class="p">,</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>            <span class="p">)</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>        <span class="k">if</span> <span class="n">payment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payment must not be None"</span><span class="p">)</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>        <span class="k">if</span> <span class="n">payment</span><span class="o">.</span><span class="n">amount</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="p">:</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>                <span class="sa">f</span><span class="s2">"Payment amount </span><span class="si">{</span><span class="n">payment</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> does not match "</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>                <span class="sa">f</span><span class="s2">"invoice amount </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>            <span class="p">)</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="n">payment</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="n">payment</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="w">        </span><span class="sd">"""Cancel the invoice.</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">        Raises:</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        """</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot cancel an invoice that is not issued"</span><span class="p">,</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>            <span class="p">)</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">        Args:</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">            new_amount: New amount. Must be positive.</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">        Raises:</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">            ValueError: If new_amount is not positive.</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">        """</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">new_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot change amount of a non-issued invoice"</span><span class="p">,</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>            <span class="p">)</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">new_amount</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">change_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="w">        </span><span class="sd">"""Change the invoice amount.</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">        Args:</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">            new_amount: New amount. Must be positive.</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">        Raises:</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">            ValueError: If new_amount is not positive.</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">        """</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">new_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot change amount of a non-issued invoice"</span><span class="p">,</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="p">)</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">new_amount</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span></pre></div>
 
 
@@ -273,156 +277,164 @@
     </div>
     <a class="headerlink" href="#Invoice"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice-7"><a href="#Invoice-7"><span class="linenos">  7</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Invoice</span><span class="p">:</span>
-</span><span id="Invoice-8"><a href="#Invoice-8"><span class="linenos">  8</span></a><span class="w">    </span><span class="sd">"""An invoice issued to a payer.</span>
+</span><span id="Invoice-8"><a href="#Invoice-8"><span class="linenos">  8</span></a><span class="w">    </span><span class="sd">"""A bill the museum must pay (supplier, restorer, insurer, etc.).</span>
 </span><span id="Invoice-9"><a href="#Invoice-9"><span class="linenos">  9</span></a>
-</span><span id="Invoice-10"><a href="#Invoice-10"><span class="linenos"> 10</span></a><span class="sd">    An invoice moves through states:</span>
-</span><span id="Invoice-11"><a href="#Invoice-11"><span class="linenos"> 11</span></a>
-</span><span id="Invoice-12"><a href="#Invoice-12"><span class="linenos"> 12</span></a><span class="sd">        ISSUED -&gt; PAID</span>
-</span><span id="Invoice-13"><a href="#Invoice-13"><span class="linenos"> 13</span></a><span class="sd">               |</span>
-</span><span id="Invoice-14"><a href="#Invoice-14"><span class="linenos"> 14</span></a><span class="sd">               v</span>
-</span><span id="Invoice-15"><a href="#Invoice-15"><span class="linenos"> 15</span></a><span class="sd">           CANCELLED</span>
-</span><span id="Invoice-16"><a href="#Invoice-16"><span class="linenos"> 16</span></a>
-</span><span id="Invoice-17"><a href="#Invoice-17"><span class="linenos"> 17</span></a><span class="sd">    The amount can only be changed while the invoice is in the ISSUED</span>
-</span><span id="Invoice-18"><a href="#Invoice-18"><span class="linenos"> 18</span></a><span class="sd">    state. Payment must match the invoice amount exactly.</span>
-</span><span id="Invoice-19"><a href="#Invoice-19"><span class="linenos"> 19</span></a><span class="sd">    """</span>
+</span><span id="Invoice-10"><a href="#Invoice-10"><span class="linenos"> 10</span></a><span class="sd">    `payer` is who settles the bill — here that is the museum.</span>
+</span><span id="Invoice-11"><a href="#Invoice-11"><span class="linenos"> 11</span></a><span class="sd">    Paying goes through `Administrator.pay_invoice`, which also spends</span>
+</span><span id="Invoice-12"><a href="#Invoice-12"><span class="linenos"> 12</span></a><span class="sd">    museum budget.</span>
+</span><span id="Invoice-13"><a href="#Invoice-13"><span class="linenos"> 13</span></a>
+</span><span id="Invoice-14"><a href="#Invoice-14"><span class="linenos"> 14</span></a><span class="sd">    An invoice moves through states:</span>
+</span><span id="Invoice-15"><a href="#Invoice-15"><span class="linenos"> 15</span></a>
+</span><span id="Invoice-16"><a href="#Invoice-16"><span class="linenos"> 16</span></a><span class="sd">        ISSUED -&gt; PAID</span>
+</span><span id="Invoice-17"><a href="#Invoice-17"><span class="linenos"> 17</span></a><span class="sd">               |</span>
+</span><span id="Invoice-18"><a href="#Invoice-18"><span class="linenos"> 18</span></a><span class="sd">               v</span>
+</span><span id="Invoice-19"><a href="#Invoice-19"><span class="linenos"> 19</span></a><span class="sd">           CANCELLED</span>
 </span><span id="Invoice-20"><a href="#Invoice-20"><span class="linenos"> 20</span></a>
-</span><span id="Invoice-21"><a href="#Invoice-21"><span class="linenos"> 21</span></a>    <span class="n">STATUS_ISSUED</span> <span class="o">=</span> <span class="s2">"issued"</span>
-</span><span id="Invoice-22"><a href="#Invoice-22"><span class="linenos"> 22</span></a>    <span class="n">STATUS_PAID</span> <span class="o">=</span> <span class="s2">"paid"</span>
-</span><span id="Invoice-23"><a href="#Invoice-23"><span class="linenos"> 23</span></a>    <span class="n">STATUS_CANCELLED</span> <span class="o">=</span> <span class="s2">"cancelled"</span>
+</span><span id="Invoice-21"><a href="#Invoice-21"><span class="linenos"> 21</span></a><span class="sd">    The amount can only be changed while the invoice is in the ISSUED</span>
+</span><span id="Invoice-22"><a href="#Invoice-22"><span class="linenos"> 22</span></a><span class="sd">    state. Payment must match the invoice amount exactly.</span>
+</span><span id="Invoice-23"><a href="#Invoice-23"><span class="linenos"> 23</span></a><span class="sd">    """</span>
 </span><span id="Invoice-24"><a href="#Invoice-24"><span class="linenos"> 24</span></a>
-</span><span id="Invoice-25"><a href="#Invoice-25"><span class="linenos"> 25</span></a>    <span class="n">_counter</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="Invoice-26"><a href="#Invoice-26"><span class="linenos"> 26</span></a>
-</span><span id="Invoice-27"><a href="#Invoice-27"><span class="linenos"> 27</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">payer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="Invoice-28"><a href="#Invoice-28"><span class="linenos"> 28</span></a><span class="w">        </span><span class="sd">"""Initialize an invoice.</span>
-</span><span id="Invoice-29"><a href="#Invoice-29"><span class="linenos"> 29</span></a>
-</span><span id="Invoice-30"><a href="#Invoice-30"><span class="linenos"> 30</span></a><span class="sd">        Args:</span>
-</span><span id="Invoice-31"><a href="#Invoice-31"><span class="linenos"> 31</span></a><span class="sd">            amount: Invoice amount. Must be positive.</span>
-</span><span id="Invoice-32"><a href="#Invoice-32"><span class="linenos"> 32</span></a><span class="sd">            payer: Payer name. Must not be empty.</span>
+</span><span id="Invoice-25"><a href="#Invoice-25"><span class="linenos"> 25</span></a>    <span class="n">STATUS_ISSUED</span> <span class="o">=</span> <span class="s2">"issued"</span>
+</span><span id="Invoice-26"><a href="#Invoice-26"><span class="linenos"> 26</span></a>    <span class="n">STATUS_PAID</span> <span class="o">=</span> <span class="s2">"paid"</span>
+</span><span id="Invoice-27"><a href="#Invoice-27"><span class="linenos"> 27</span></a>    <span class="n">STATUS_CANCELLED</span> <span class="o">=</span> <span class="s2">"cancelled"</span>
+</span><span id="Invoice-28"><a href="#Invoice-28"><span class="linenos"> 28</span></a>
+</span><span id="Invoice-29"><a href="#Invoice-29"><span class="linenos"> 29</span></a>    <span class="n">_counter</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="Invoice-30"><a href="#Invoice-30"><span class="linenos"> 30</span></a>
+</span><span id="Invoice-31"><a href="#Invoice-31"><span class="linenos"> 31</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">payer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="Invoice-32"><a href="#Invoice-32"><span class="linenos"> 32</span></a><span class="w">        </span><span class="sd">"""Initialize an invoice.</span>
 </span><span id="Invoice-33"><a href="#Invoice-33"><span class="linenos"> 33</span></a>
-</span><span id="Invoice-34"><a href="#Invoice-34"><span class="linenos"> 34</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice-35"><a href="#Invoice-35"><span class="linenos"> 35</span></a><span class="sd">            ValueError: If amount is not positive or payer is empty.</span>
-</span><span id="Invoice-36"><a href="#Invoice-36"><span class="linenos"> 36</span></a><span class="sd">        """</span>
-</span><span id="Invoice-37"><a href="#Invoice-37"><span class="linenos"> 37</span></a>        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="Invoice-38"><a href="#Invoice-38"><span class="linenos"> 38</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="Invoice-39"><a href="#Invoice-39"><span class="linenos"> 39</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">payer</span><span class="p">:</span>
-</span><span id="Invoice-40"><a href="#Invoice-40"><span class="linenos"> 40</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payer must not be empty"</span><span class="p">)</span>
-</span><span id="Invoice-41"><a href="#Invoice-41"><span class="linenos"> 41</span></a>
-</span><span id="Invoice-42"><a href="#Invoice-42"><span class="linenos"> 42</span></a>        <span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="Invoice-43"><a href="#Invoice-43"><span class="linenos"> 43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_number</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"INV-</span><span class="si">{</span><span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span><span class="si">:</span><span class="s2">05d</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="Invoice-44"><a href="#Invoice-44"><span class="linenos"> 44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">amount</span>
-</span><span id="Invoice-45"><a href="#Invoice-45"><span class="linenos"> 45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span> <span class="o">=</span> <span class="n">payer</span>
-</span><span id="Invoice-46"><a href="#Invoice-46"><span class="linenos"> 46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span>
-</span><span id="Invoice-47"><a href="#Invoice-47"><span class="linenos"> 47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
-</span><span id="Invoice-48"><a href="#Invoice-48"><span class="linenos"> 48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Invoice-49"><a href="#Invoice-49"><span class="linenos"> 49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Invoice-50"><a href="#Invoice-50"><span class="linenos"> 50</span></a>
-</span><span id="Invoice-51"><a href="#Invoice-51"><span class="linenos"> 51</span></a>
-</span><span id="Invoice-52"><a href="#Invoice-52"><span class="linenos"> 52</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-53"><a href="#Invoice-53"><span class="linenos"> 53</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-54"><a href="#Invoice-54"><span class="linenos"> 54</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number</span>
+</span><span id="Invoice-34"><a href="#Invoice-34"><span class="linenos"> 34</span></a><span class="sd">        Args:</span>
+</span><span id="Invoice-35"><a href="#Invoice-35"><span class="linenos"> 35</span></a><span class="sd">            amount: Invoice amount. Must be positive.</span>
+</span><span id="Invoice-36"><a href="#Invoice-36"><span class="linenos"> 36</span></a><span class="sd">            payer: Payer name. Must not be empty.</span>
+</span><span id="Invoice-37"><a href="#Invoice-37"><span class="linenos"> 37</span></a>
+</span><span id="Invoice-38"><a href="#Invoice-38"><span class="linenos"> 38</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice-39"><a href="#Invoice-39"><span class="linenos"> 39</span></a><span class="sd">            ValueError: If amount is not positive or payer is empty.</span>
+</span><span id="Invoice-40"><a href="#Invoice-40"><span class="linenos"> 40</span></a><span class="sd">        """</span>
+</span><span id="Invoice-41"><a href="#Invoice-41"><span class="linenos"> 41</span></a>        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="Invoice-42"><a href="#Invoice-42"><span class="linenos"> 42</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="Invoice-43"><a href="#Invoice-43"><span class="linenos"> 43</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">payer</span><span class="p">:</span>
+</span><span id="Invoice-44"><a href="#Invoice-44"><span class="linenos"> 44</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payer must not be empty"</span><span class="p">)</span>
+</span><span id="Invoice-45"><a href="#Invoice-45"><span class="linenos"> 45</span></a>
+</span><span id="Invoice-46"><a href="#Invoice-46"><span class="linenos"> 46</span></a>        <span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="Invoice-47"><a href="#Invoice-47"><span class="linenos"> 47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_number</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"INV-</span><span class="si">{</span><span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span><span class="si">:</span><span class="s2">05d</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="Invoice-48"><a href="#Invoice-48"><span class="linenos"> 48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">amount</span>
+</span><span id="Invoice-49"><a href="#Invoice-49"><span class="linenos"> 49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span> <span class="o">=</span> <span class="n">payer</span>
+</span><span id="Invoice-50"><a href="#Invoice-50"><span class="linenos"> 50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span>
+</span><span id="Invoice-51"><a href="#Invoice-51"><span class="linenos"> 51</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+</span><span id="Invoice-52"><a href="#Invoice-52"><span class="linenos"> 52</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Invoice-53"><a href="#Invoice-53"><span class="linenos"> 53</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Invoice-54"><a href="#Invoice-54"><span class="linenos"> 54</span></a>
 </span><span id="Invoice-55"><a href="#Invoice-55"><span class="linenos"> 55</span></a>
 </span><span id="Invoice-56"><a href="#Invoice-56"><span class="linenos"> 56</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-57"><a href="#Invoice-57"><span class="linenos"> 57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-58"><a href="#Invoice-58"><span class="linenos"> 58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span>
+</span><span id="Invoice-57"><a href="#Invoice-57"><span class="linenos"> 57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-58"><a href="#Invoice-58"><span class="linenos"> 58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number</span>
 </span><span id="Invoice-59"><a href="#Invoice-59"><span class="linenos"> 59</span></a>
 </span><span id="Invoice-60"><a href="#Invoice-60"><span class="linenos"> 60</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-61"><a href="#Invoice-61"><span class="linenos"> 61</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-62"><a href="#Invoice-62"><span class="linenos"> 62</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span>
+</span><span id="Invoice-61"><a href="#Invoice-61"><span class="linenos"> 61</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-62"><a href="#Invoice-62"><span class="linenos"> 62</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span>
 </span><span id="Invoice-63"><a href="#Invoice-63"><span class="linenos"> 63</span></a>
 </span><span id="Invoice-64"><a href="#Invoice-64"><span class="linenos"> 64</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-65"><a href="#Invoice-65"><span class="linenos"> 65</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-66"><a href="#Invoice-66"><span class="linenos"> 66</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+</span><span id="Invoice-65"><a href="#Invoice-65"><span class="linenos"> 65</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-66"><a href="#Invoice-66"><span class="linenos"> 66</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span>
 </span><span id="Invoice-67"><a href="#Invoice-67"><span class="linenos"> 67</span></a>
 </span><span id="Invoice-68"><a href="#Invoice-68"><span class="linenos"> 68</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-69"><a href="#Invoice-69"><span class="linenos"> 69</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">issued_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-70"><a href="#Invoice-70"><span class="linenos"> 70</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span>
+</span><span id="Invoice-69"><a href="#Invoice-69"><span class="linenos"> 69</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-70"><a href="#Invoice-70"><span class="linenos"> 70</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 </span><span id="Invoice-71"><a href="#Invoice-71"><span class="linenos"> 71</span></a>
 </span><span id="Invoice-72"><a href="#Invoice-72"><span class="linenos"> 72</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-73"><a href="#Invoice-73"><span class="linenos"> 73</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">paid_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-74"><a href="#Invoice-74"><span class="linenos"> 74</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span>
+</span><span id="Invoice-73"><a href="#Invoice-73"><span class="linenos"> 73</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">issued_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-74"><a href="#Invoice-74"><span class="linenos"> 74</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span>
 </span><span id="Invoice-75"><a href="#Invoice-75"><span class="linenos"> 75</span></a>
 </span><span id="Invoice-76"><a href="#Invoice-76"><span class="linenos"> 76</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-77"><a href="#Invoice-77"><span class="linenos"> 77</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-78"><a href="#Invoice-78"><span class="linenos"> 78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span>
+</span><span id="Invoice-77"><a href="#Invoice-77"><span class="linenos"> 77</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">paid_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-78"><a href="#Invoice-78"><span class="linenos"> 78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span>
 </span><span id="Invoice-79"><a href="#Invoice-79"><span class="linenos"> 79</span></a>
 </span><span id="Invoice-80"><a href="#Invoice-80"><span class="linenos"> 80</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-81"><a href="#Invoice-81"><span class="linenos"> 81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_paid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-82"><a href="#Invoice-82"><span class="linenos"> 82</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
+</span><span id="Invoice-81"><a href="#Invoice-81"><span class="linenos"> 81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-82"><a href="#Invoice-82"><span class="linenos"> 82</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span>
 </span><span id="Invoice-83"><a href="#Invoice-83"><span class="linenos"> 83</span></a>
 </span><span id="Invoice-84"><a href="#Invoice-84"><span class="linenos"> 84</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice-85"><a href="#Invoice-85"><span class="linenos"> 85</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-86"><a href="#Invoice-86"><span class="linenos"> 86</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+</span><span id="Invoice-85"><a href="#Invoice-85"><span class="linenos"> 85</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_paid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-86"><a href="#Invoice-86"><span class="linenos"> 86</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
 </span><span id="Invoice-87"><a href="#Invoice-87"><span class="linenos"> 87</span></a>
-</span><span id="Invoice-88"><a href="#Invoice-88"><span class="linenos"> 88</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payment</span><span class="p">):</span>
-</span><span id="Invoice-89"><a href="#Invoice-89"><span class="linenos"> 89</span></a><span class="w">        </span><span class="sd">"""Pay the invoice.</span>
-</span><span id="Invoice-90"><a href="#Invoice-90"><span class="linenos"> 90</span></a>
-</span><span id="Invoice-91"><a href="#Invoice-91"><span class="linenos"> 91</span></a><span class="sd">        Args:</span>
-</span><span id="Invoice-92"><a href="#Invoice-92"><span class="linenos"> 92</span></a><span class="sd">            payment: The payment. Must expose `.amount` and `.process()`.</span>
-</span><span id="Invoice-93"><a href="#Invoice-93"><span class="linenos"> 93</span></a>
-</span><span id="Invoice-94"><a href="#Invoice-94"><span class="linenos"> 94</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice-95"><a href="#Invoice-95"><span class="linenos"> 95</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="Invoice-96"><a href="#Invoice-96"><span class="linenos"> 96</span></a><span class="sd">            ValueError: If payment is None or its amount does not match.</span>
-</span><span id="Invoice-97"><a href="#Invoice-97"><span class="linenos"> 97</span></a><span class="sd">            PaymentFailedException: Propagated from payment.process().</span>
-</span><span id="Invoice-98"><a href="#Invoice-98"><span class="linenos"> 98</span></a><span class="sd">        """</span>
-</span><span id="Invoice-99"><a href="#Invoice-99"><span class="linenos"> 99</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="Invoice-100"><a href="#Invoice-100"><span class="linenos">100</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Invoice-101"><a href="#Invoice-101"><span class="linenos">101</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="Invoice-102"><a href="#Invoice-102"><span class="linenos">102</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="Invoice-103"><a href="#Invoice-103"><span class="linenos">103</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot pay an invoice that is not issued"</span><span class="p">,</span>
-</span><span id="Invoice-104"><a href="#Invoice-104"><span class="linenos">104</span></a>            <span class="p">)</span>
-</span><span id="Invoice-105"><a href="#Invoice-105"><span class="linenos">105</span></a>        <span class="k">if</span> <span class="n">payment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Invoice-106"><a href="#Invoice-106"><span class="linenos">106</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payment must not be None"</span><span class="p">)</span>
-</span><span id="Invoice-107"><a href="#Invoice-107"><span class="linenos">107</span></a>        <span class="k">if</span> <span class="n">payment</span><span class="o">.</span><span class="n">amount</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="p">:</span>
-</span><span id="Invoice-108"><a href="#Invoice-108"><span class="linenos">108</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="Invoice-109"><a href="#Invoice-109"><span class="linenos">109</span></a>                <span class="sa">f</span><span class="s2">"Payment amount </span><span class="si">{</span><span class="n">payment</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> does not match "</span>
-</span><span id="Invoice-110"><a href="#Invoice-110"><span class="linenos">110</span></a>                <span class="sa">f</span><span class="s2">"invoice amount </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="Invoice-111"><a href="#Invoice-111"><span class="linenos">111</span></a>            <span class="p">)</span>
-</span><span id="Invoice-112"><a href="#Invoice-112"><span class="linenos">112</span></a>        <span class="n">payment</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</span><span id="Invoice-113"><a href="#Invoice-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="n">payment</span>
-</span><span id="Invoice-114"><a href="#Invoice-114"><span class="linenos">114</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
-</span><span id="Invoice-115"><a href="#Invoice-115"><span class="linenos">115</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
-</span><span id="Invoice-116"><a href="#Invoice-116"><span class="linenos">116</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="Invoice-117"><a href="#Invoice-117"><span class="linenos">117</span></a>
-</span><span id="Invoice-118"><a href="#Invoice-118"><span class="linenos">118</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice-119"><a href="#Invoice-119"><span class="linenos">119</span></a><span class="w">        </span><span class="sd">"""Cancel the invoice.</span>
-</span><span id="Invoice-120"><a href="#Invoice-120"><span class="linenos">120</span></a>
-</span><span id="Invoice-121"><a href="#Invoice-121"><span class="linenos">121</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice-122"><a href="#Invoice-122"><span class="linenos">122</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="Invoice-123"><a href="#Invoice-123"><span class="linenos">123</span></a><span class="sd">        """</span>
-</span><span id="Invoice-124"><a href="#Invoice-124"><span class="linenos">124</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="Invoice-125"><a href="#Invoice-125"><span class="linenos">125</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Invoice-126"><a href="#Invoice-126"><span class="linenos">126</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="Invoice-127"><a href="#Invoice-127"><span class="linenos">127</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="Invoice-128"><a href="#Invoice-128"><span class="linenos">128</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot cancel an invoice that is not issued"</span><span class="p">,</span>
-</span><span id="Invoice-129"><a href="#Invoice-129"><span class="linenos">129</span></a>            <span class="p">)</span>
-</span><span id="Invoice-130"><a href="#Invoice-130"><span class="linenos">130</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
-</span><span id="Invoice-131"><a href="#Invoice-131"><span class="linenos">131</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="Invoice-132"><a href="#Invoice-132"><span class="linenos">132</span></a>
-</span><span id="Invoice-133"><a href="#Invoice-133"><span class="linenos">133</span></a>
-</span><span id="Invoice-134"><a href="#Invoice-134"><span class="linenos">134</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">change_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-</span><span id="Invoice-135"><a href="#Invoice-135"><span class="linenos">135</span></a><span class="w">        </span><span class="sd">"""Change the invoice amount.</span>
+</span><span id="Invoice-88"><a href="#Invoice-88"><span class="linenos"> 88</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice-89"><a href="#Invoice-89"><span class="linenos"> 89</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-90"><a href="#Invoice-90"><span class="linenos"> 90</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+</span><span id="Invoice-91"><a href="#Invoice-91"><span class="linenos"> 91</span></a>
+</span><span id="Invoice-92"><a href="#Invoice-92"><span class="linenos"> 92</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payment</span><span class="p">):</span>
+</span><span id="Invoice-93"><a href="#Invoice-93"><span class="linenos"> 93</span></a><span class="w">        </span><span class="sd">"""Pay the invoice.</span>
+</span><span id="Invoice-94"><a href="#Invoice-94"><span class="linenos"> 94</span></a>
+</span><span id="Invoice-95"><a href="#Invoice-95"><span class="linenos"> 95</span></a><span class="sd">        Args:</span>
+</span><span id="Invoice-96"><a href="#Invoice-96"><span class="linenos"> 96</span></a><span class="sd">            payment: The payment. Must expose `.amount` and `.process()`.</span>
+</span><span id="Invoice-97"><a href="#Invoice-97"><span class="linenos"> 97</span></a>
+</span><span id="Invoice-98"><a href="#Invoice-98"><span class="linenos"> 98</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice-99"><a href="#Invoice-99"><span class="linenos"> 99</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="Invoice-100"><a href="#Invoice-100"><span class="linenos">100</span></a><span class="sd">            ValueError: If payment is None or its amount does not match.</span>
+</span><span id="Invoice-101"><a href="#Invoice-101"><span class="linenos">101</span></a><span class="sd">            PaymentFailedException: Propagated from payment.process().</span>
+</span><span id="Invoice-102"><a href="#Invoice-102"><span class="linenos">102</span></a><span class="sd">        """</span>
+</span><span id="Invoice-103"><a href="#Invoice-103"><span class="linenos">103</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="Invoice-104"><a href="#Invoice-104"><span class="linenos">104</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Invoice-105"><a href="#Invoice-105"><span class="linenos">105</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="Invoice-106"><a href="#Invoice-106"><span class="linenos">106</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="Invoice-107"><a href="#Invoice-107"><span class="linenos">107</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot pay an invoice that is not issued"</span><span class="p">,</span>
+</span><span id="Invoice-108"><a href="#Invoice-108"><span class="linenos">108</span></a>            <span class="p">)</span>
+</span><span id="Invoice-109"><a href="#Invoice-109"><span class="linenos">109</span></a>        <span class="k">if</span> <span class="n">payment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Invoice-110"><a href="#Invoice-110"><span class="linenos">110</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payment must not be None"</span><span class="p">)</span>
+</span><span id="Invoice-111"><a href="#Invoice-111"><span class="linenos">111</span></a>        <span class="k">if</span> <span class="n">payment</span><span class="o">.</span><span class="n">amount</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="p">:</span>
+</span><span id="Invoice-112"><a href="#Invoice-112"><span class="linenos">112</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="Invoice-113"><a href="#Invoice-113"><span class="linenos">113</span></a>                <span class="sa">f</span><span class="s2">"Payment amount </span><span class="si">{</span><span class="n">payment</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> does not match "</span>
+</span><span id="Invoice-114"><a href="#Invoice-114"><span class="linenos">114</span></a>                <span class="sa">f</span><span class="s2">"invoice amount </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="Invoice-115"><a href="#Invoice-115"><span class="linenos">115</span></a>            <span class="p">)</span>
+</span><span id="Invoice-116"><a href="#Invoice-116"><span class="linenos">116</span></a>        <span class="n">payment</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</span><span id="Invoice-117"><a href="#Invoice-117"><span class="linenos">117</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="n">payment</span>
+</span><span id="Invoice-118"><a href="#Invoice-118"><span class="linenos">118</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
+</span><span id="Invoice-119"><a href="#Invoice-119"><span class="linenos">119</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+</span><span id="Invoice-120"><a href="#Invoice-120"><span class="linenos">120</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="Invoice-121"><a href="#Invoice-121"><span class="linenos">121</span></a>
+</span><span id="Invoice-122"><a href="#Invoice-122"><span class="linenos">122</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice-123"><a href="#Invoice-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">"""Cancel the invoice.</span>
+</span><span id="Invoice-124"><a href="#Invoice-124"><span class="linenos">124</span></a>
+</span><span id="Invoice-125"><a href="#Invoice-125"><span class="linenos">125</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice-126"><a href="#Invoice-126"><span class="linenos">126</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="Invoice-127"><a href="#Invoice-127"><span class="linenos">127</span></a><span class="sd">        """</span>
+</span><span id="Invoice-128"><a href="#Invoice-128"><span class="linenos">128</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="Invoice-129"><a href="#Invoice-129"><span class="linenos">129</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Invoice-130"><a href="#Invoice-130"><span class="linenos">130</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="Invoice-131"><a href="#Invoice-131"><span class="linenos">131</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="Invoice-132"><a href="#Invoice-132"><span class="linenos">132</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot cancel an invoice that is not issued"</span><span class="p">,</span>
+</span><span id="Invoice-133"><a href="#Invoice-133"><span class="linenos">133</span></a>            <span class="p">)</span>
+</span><span id="Invoice-134"><a href="#Invoice-134"><span class="linenos">134</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+</span><span id="Invoice-135"><a href="#Invoice-135"><span class="linenos">135</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span><span id="Invoice-136"><a href="#Invoice-136"><span class="linenos">136</span></a>
-</span><span id="Invoice-137"><a href="#Invoice-137"><span class="linenos">137</span></a><span class="sd">        Args:</span>
-</span><span id="Invoice-138"><a href="#Invoice-138"><span class="linenos">138</span></a><span class="sd">            new_amount: New amount. Must be positive.</span>
-</span><span id="Invoice-139"><a href="#Invoice-139"><span class="linenos">139</span></a>
-</span><span id="Invoice-140"><a href="#Invoice-140"><span class="linenos">140</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice-141"><a href="#Invoice-141"><span class="linenos">141</span></a><span class="sd">            ValueError: If new_amount is not positive.</span>
-</span><span id="Invoice-142"><a href="#Invoice-142"><span class="linenos">142</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="Invoice-143"><a href="#Invoice-143"><span class="linenos">143</span></a><span class="sd">        """</span>
-</span><span id="Invoice-144"><a href="#Invoice-144"><span class="linenos">144</span></a>        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="Invoice-145"><a href="#Invoice-145"><span class="linenos">145</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">new_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="Invoice-146"><a href="#Invoice-146"><span class="linenos">146</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="Invoice-147"><a href="#Invoice-147"><span class="linenos">147</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Invoice-148"><a href="#Invoice-148"><span class="linenos">148</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="Invoice-149"><a href="#Invoice-149"><span class="linenos">149</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="Invoice-150"><a href="#Invoice-150"><span class="linenos">150</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot change amount of a non-issued invoice"</span><span class="p">,</span>
-</span><span id="Invoice-151"><a href="#Invoice-151"><span class="linenos">151</span></a>            <span class="p">)</span>
-</span><span id="Invoice-152"><a href="#Invoice-152"><span class="linenos">152</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">new_amount</span>
-</span><span id="Invoice-153"><a href="#Invoice-153"><span class="linenos">153</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="Invoice-137"><a href="#Invoice-137"><span class="linenos">137</span></a>
+</span><span id="Invoice-138"><a href="#Invoice-138"><span class="linenos">138</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">change_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+</span><span id="Invoice-139"><a href="#Invoice-139"><span class="linenos">139</span></a><span class="w">        </span><span class="sd">"""Change the invoice amount.</span>
+</span><span id="Invoice-140"><a href="#Invoice-140"><span class="linenos">140</span></a>
+</span><span id="Invoice-141"><a href="#Invoice-141"><span class="linenos">141</span></a><span class="sd">        Args:</span>
+</span><span id="Invoice-142"><a href="#Invoice-142"><span class="linenos">142</span></a><span class="sd">            new_amount: New amount. Must be positive.</span>
+</span><span id="Invoice-143"><a href="#Invoice-143"><span class="linenos">143</span></a>
+</span><span id="Invoice-144"><a href="#Invoice-144"><span class="linenos">144</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice-145"><a href="#Invoice-145"><span class="linenos">145</span></a><span class="sd">            ValueError: If new_amount is not positive.</span>
+</span><span id="Invoice-146"><a href="#Invoice-146"><span class="linenos">146</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="Invoice-147"><a href="#Invoice-147"><span class="linenos">147</span></a><span class="sd">        """</span>
+</span><span id="Invoice-148"><a href="#Invoice-148"><span class="linenos">148</span></a>        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="Invoice-149"><a href="#Invoice-149"><span class="linenos">149</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">new_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="Invoice-150"><a href="#Invoice-150"><span class="linenos">150</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="Invoice-151"><a href="#Invoice-151"><span class="linenos">151</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Invoice-152"><a href="#Invoice-152"><span class="linenos">152</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="Invoice-153"><a href="#Invoice-153"><span class="linenos">153</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="Invoice-154"><a href="#Invoice-154"><span class="linenos">154</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot change amount of a non-issued invoice"</span><span class="p">,</span>
+</span><span id="Invoice-155"><a href="#Invoice-155"><span class="linenos">155</span></a>            <span class="p">)</span>
+</span><span id="Invoice-156"><a href="#Invoice-156"><span class="linenos">156</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">new_amount</span>
+</span><span id="Invoice-157"><a href="#Invoice-157"><span class="linenos">157</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>An invoice issued to a payer.</p>
+            <div class="docstring"><p>A bill the museum must pay (supplier, restorer, insurer, etc.).</p>
+
+<p><code><a href="#Invoice.payer">payer</a></code> is who settles the bill — here that is the museum.
+Paying goes through <code>Administrator.pay_invoice</code>, which also spends
+museum budget.</p>
 
 <p>An invoice moves through states:</p>
 
@@ -447,29 +459,29 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.__init__-27"><a href="#Invoice.__init__-27"><span class="linenos">27</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">payer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="Invoice.__init__-28"><a href="#Invoice.__init__-28"><span class="linenos">28</span></a><span class="w">        </span><span class="sd">"""Initialize an invoice.</span>
-</span><span id="Invoice.__init__-29"><a href="#Invoice.__init__-29"><span class="linenos">29</span></a>
-</span><span id="Invoice.__init__-30"><a href="#Invoice.__init__-30"><span class="linenos">30</span></a><span class="sd">        Args:</span>
-</span><span id="Invoice.__init__-31"><a href="#Invoice.__init__-31"><span class="linenos">31</span></a><span class="sd">            amount: Invoice amount. Must be positive.</span>
-</span><span id="Invoice.__init__-32"><a href="#Invoice.__init__-32"><span class="linenos">32</span></a><span class="sd">            payer: Payer name. Must not be empty.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.__init__-31"><a href="#Invoice.__init__-31"><span class="linenos">31</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">payer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="Invoice.__init__-32"><a href="#Invoice.__init__-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">"""Initialize an invoice.</span>
 </span><span id="Invoice.__init__-33"><a href="#Invoice.__init__-33"><span class="linenos">33</span></a>
-</span><span id="Invoice.__init__-34"><a href="#Invoice.__init__-34"><span class="linenos">34</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice.__init__-35"><a href="#Invoice.__init__-35"><span class="linenos">35</span></a><span class="sd">            ValueError: If amount is not positive or payer is empty.</span>
-</span><span id="Invoice.__init__-36"><a href="#Invoice.__init__-36"><span class="linenos">36</span></a><span class="sd">        """</span>
-</span><span id="Invoice.__init__-37"><a href="#Invoice.__init__-37"><span class="linenos">37</span></a>        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="Invoice.__init__-38"><a href="#Invoice.__init__-38"><span class="linenos">38</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="Invoice.__init__-39"><a href="#Invoice.__init__-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">payer</span><span class="p">:</span>
-</span><span id="Invoice.__init__-40"><a href="#Invoice.__init__-40"><span class="linenos">40</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payer must not be empty"</span><span class="p">)</span>
-</span><span id="Invoice.__init__-41"><a href="#Invoice.__init__-41"><span class="linenos">41</span></a>
-</span><span id="Invoice.__init__-42"><a href="#Invoice.__init__-42"><span class="linenos">42</span></a>        <span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="Invoice.__init__-43"><a href="#Invoice.__init__-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_number</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"INV-</span><span class="si">{</span><span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span><span class="si">:</span><span class="s2">05d</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="Invoice.__init__-44"><a href="#Invoice.__init__-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">amount</span>
-</span><span id="Invoice.__init__-45"><a href="#Invoice.__init__-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span> <span class="o">=</span> <span class="n">payer</span>
-</span><span id="Invoice.__init__-46"><a href="#Invoice.__init__-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span>
-</span><span id="Invoice.__init__-47"><a href="#Invoice.__init__-47"><span class="linenos">47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
-</span><span id="Invoice.__init__-48"><a href="#Invoice.__init__-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Invoice.__init__-49"><a href="#Invoice.__init__-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Invoice.__init__-34"><a href="#Invoice.__init__-34"><span class="linenos">34</span></a><span class="sd">        Args:</span>
+</span><span id="Invoice.__init__-35"><a href="#Invoice.__init__-35"><span class="linenos">35</span></a><span class="sd">            amount: Invoice amount. Must be positive.</span>
+</span><span id="Invoice.__init__-36"><a href="#Invoice.__init__-36"><span class="linenos">36</span></a><span class="sd">            payer: Payer name. Must not be empty.</span>
+</span><span id="Invoice.__init__-37"><a href="#Invoice.__init__-37"><span class="linenos">37</span></a>
+</span><span id="Invoice.__init__-38"><a href="#Invoice.__init__-38"><span class="linenos">38</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice.__init__-39"><a href="#Invoice.__init__-39"><span class="linenos">39</span></a><span class="sd">            ValueError: If amount is not positive or payer is empty.</span>
+</span><span id="Invoice.__init__-40"><a href="#Invoice.__init__-40"><span class="linenos">40</span></a><span class="sd">        """</span>
+</span><span id="Invoice.__init__-41"><a href="#Invoice.__init__-41"><span class="linenos">41</span></a>        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="Invoice.__init__-42"><a href="#Invoice.__init__-42"><span class="linenos">42</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="Invoice.__init__-43"><a href="#Invoice.__init__-43"><span class="linenos">43</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">payer</span><span class="p">:</span>
+</span><span id="Invoice.__init__-44"><a href="#Invoice.__init__-44"><span class="linenos">44</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payer must not be empty"</span><span class="p">)</span>
+</span><span id="Invoice.__init__-45"><a href="#Invoice.__init__-45"><span class="linenos">45</span></a>
+</span><span id="Invoice.__init__-46"><a href="#Invoice.__init__-46"><span class="linenos">46</span></a>        <span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="Invoice.__init__-47"><a href="#Invoice.__init__-47"><span class="linenos">47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_number</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"INV-</span><span class="si">{</span><span class="n">Invoice</span><span class="o">.</span><span class="n">_counter</span><span class="si">:</span><span class="s2">05d</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="Invoice.__init__-48"><a href="#Invoice.__init__-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">amount</span>
+</span><span id="Invoice.__init__-49"><a href="#Invoice.__init__-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span> <span class="o">=</span> <span class="n">payer</span>
+</span><span id="Invoice.__init__-50"><a href="#Invoice.__init__-50"><span class="linenos">50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span>
+</span><span id="Invoice.__init__-51"><a href="#Invoice.__init__-51"><span class="linenos">51</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+</span><span id="Invoice.__init__-52"><a href="#Invoice.__init__-52"><span class="linenos">52</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Invoice.__init__-53"><a href="#Invoice.__init__-53"><span class="linenos">53</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -530,9 +542,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.number"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.number-52"><a href="#Invoice.number-52"><span class="linenos">52</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.number-53"><a href="#Invoice.number-53"><span class="linenos">53</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.number-54"><a href="#Invoice.number-54"><span class="linenos">54</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.number-56"><a href="#Invoice.number-56"><span class="linenos">56</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.number-57"><a href="#Invoice.number-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.number-58"><a href="#Invoice.number-58"><span class="linenos">58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number</span>
 </span></pre></div>
 
 
@@ -548,9 +560,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.amount"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.amount-56"><a href="#Invoice.amount-56"><span class="linenos">56</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.amount-57"><a href="#Invoice.amount-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.amount-58"><a href="#Invoice.amount-58"><span class="linenos">58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.amount-60"><a href="#Invoice.amount-60"><span class="linenos">60</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.amount-61"><a href="#Invoice.amount-61"><span class="linenos">61</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.amount-62"><a href="#Invoice.amount-62"><span class="linenos">62</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span>
 </span></pre></div>
 
 
@@ -566,9 +578,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.payer"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.payer-60"><a href="#Invoice.payer-60"><span class="linenos">60</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.payer-61"><a href="#Invoice.payer-61"><span class="linenos">61</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.payer-62"><a href="#Invoice.payer-62"><span class="linenos">62</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.payer-64"><a href="#Invoice.payer-64"><span class="linenos">64</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.payer-65"><a href="#Invoice.payer-65"><span class="linenos">65</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.payer-66"><a href="#Invoice.payer-66"><span class="linenos">66</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payer</span>
 </span></pre></div>
 
 
@@ -584,9 +596,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.status"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.status-64"><a href="#Invoice.status-64"><span class="linenos">64</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.status-65"><a href="#Invoice.status-65"><span class="linenos">65</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.status-66"><a href="#Invoice.status-66"><span class="linenos">66</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.status-68"><a href="#Invoice.status-68"><span class="linenos">68</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.status-69"><a href="#Invoice.status-69"><span class="linenos">69</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.status-70"><a href="#Invoice.status-70"><span class="linenos">70</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 </span></pre></div>
 
 
@@ -602,9 +614,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.issued_date"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.issued_date-68"><a href="#Invoice.issued_date-68"><span class="linenos">68</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.issued_date-69"><a href="#Invoice.issued_date-69"><span class="linenos">69</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">issued_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.issued_date-70"><a href="#Invoice.issued_date-70"><span class="linenos">70</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.issued_date-72"><a href="#Invoice.issued_date-72"><span class="linenos">72</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.issued_date-73"><a href="#Invoice.issued_date-73"><span class="linenos">73</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">issued_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.issued_date-74"><a href="#Invoice.issued_date-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_date</span>
 </span></pre></div>
 
 
@@ -620,9 +632,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.paid_date"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.paid_date-72"><a href="#Invoice.paid_date-72"><span class="linenos">72</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.paid_date-73"><a href="#Invoice.paid_date-73"><span class="linenos">73</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">paid_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.paid_date-74"><a href="#Invoice.paid_date-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.paid_date-76"><a href="#Invoice.paid_date-76"><span class="linenos">76</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.paid_date-77"><a href="#Invoice.paid_date-77"><span class="linenos">77</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">paid_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.paid_date-78"><a href="#Invoice.paid_date-78"><span class="linenos">78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span>
 </span></pre></div>
 
 
@@ -638,9 +650,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.payment"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.payment-76"><a href="#Invoice.payment-76"><span class="linenos">76</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.payment-77"><a href="#Invoice.payment-77"><span class="linenos">77</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.payment-78"><a href="#Invoice.payment-78"><span class="linenos">78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.payment-80"><a href="#Invoice.payment-80"><span class="linenos">80</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.payment-81"><a href="#Invoice.payment-81"><span class="linenos">81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">payment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.payment-82"><a href="#Invoice.payment-82"><span class="linenos">82</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span>
 </span></pre></div>
 
 
@@ -656,9 +668,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.is_paid"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.is_paid-80"><a href="#Invoice.is_paid-80"><span class="linenos">80</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.is_paid-81"><a href="#Invoice.is_paid-81"><span class="linenos">81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_paid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.is_paid-82"><a href="#Invoice.is_paid-82"><span class="linenos">82</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.is_paid-84"><a href="#Invoice.is_paid-84"><span class="linenos">84</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.is_paid-85"><a href="#Invoice.is_paid-85"><span class="linenos">85</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_paid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.is_paid-86"><a href="#Invoice.is_paid-86"><span class="linenos">86</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
 </span></pre></div>
 
 
@@ -674,9 +686,9 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.is_cancelled"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.is_cancelled-84"><a href="#Invoice.is_cancelled-84"><span class="linenos">84</span></a>    <span class="nd">@property</span>
-</span><span id="Invoice.is_cancelled-85"><a href="#Invoice.is_cancelled-85"><span class="linenos">85</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.is_cancelled-86"><a href="#Invoice.is_cancelled-86"><span class="linenos">86</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.is_cancelled-88"><a href="#Invoice.is_cancelled-88"><span class="linenos">88</span></a>    <span class="nd">@property</span>
+</span><span id="Invoice.is_cancelled-89"><a href="#Invoice.is_cancelled-89"><span class="linenos">89</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.is_cancelled-90"><a href="#Invoice.is_cancelled-90"><span class="linenos">90</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
 </span></pre></div>
 
 
@@ -694,35 +706,35 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.pay"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.pay-88"><a href="#Invoice.pay-88"><span class="linenos"> 88</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payment</span><span class="p">):</span>
-</span><span id="Invoice.pay-89"><a href="#Invoice.pay-89"><span class="linenos"> 89</span></a><span class="w">        </span><span class="sd">"""Pay the invoice.</span>
-</span><span id="Invoice.pay-90"><a href="#Invoice.pay-90"><span class="linenos"> 90</span></a>
-</span><span id="Invoice.pay-91"><a href="#Invoice.pay-91"><span class="linenos"> 91</span></a><span class="sd">        Args:</span>
-</span><span id="Invoice.pay-92"><a href="#Invoice.pay-92"><span class="linenos"> 92</span></a><span class="sd">            payment: The payment. Must expose `.amount` and `.process()`.</span>
-</span><span id="Invoice.pay-93"><a href="#Invoice.pay-93"><span class="linenos"> 93</span></a>
-</span><span id="Invoice.pay-94"><a href="#Invoice.pay-94"><span class="linenos"> 94</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice.pay-95"><a href="#Invoice.pay-95"><span class="linenos"> 95</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="Invoice.pay-96"><a href="#Invoice.pay-96"><span class="linenos"> 96</span></a><span class="sd">            ValueError: If payment is None or its amount does not match.</span>
-</span><span id="Invoice.pay-97"><a href="#Invoice.pay-97"><span class="linenos"> 97</span></a><span class="sd">            PaymentFailedException: Propagated from payment.process().</span>
-</span><span id="Invoice.pay-98"><a href="#Invoice.pay-98"><span class="linenos"> 98</span></a><span class="sd">        """</span>
-</span><span id="Invoice.pay-99"><a href="#Invoice.pay-99"><span class="linenos"> 99</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="Invoice.pay-100"><a href="#Invoice.pay-100"><span class="linenos">100</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Invoice.pay-101"><a href="#Invoice.pay-101"><span class="linenos">101</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="Invoice.pay-102"><a href="#Invoice.pay-102"><span class="linenos">102</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="Invoice.pay-103"><a href="#Invoice.pay-103"><span class="linenos">103</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot pay an invoice that is not issued"</span><span class="p">,</span>
-</span><span id="Invoice.pay-104"><a href="#Invoice.pay-104"><span class="linenos">104</span></a>            <span class="p">)</span>
-</span><span id="Invoice.pay-105"><a href="#Invoice.pay-105"><span class="linenos">105</span></a>        <span class="k">if</span> <span class="n">payment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Invoice.pay-106"><a href="#Invoice.pay-106"><span class="linenos">106</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payment must not be None"</span><span class="p">)</span>
-</span><span id="Invoice.pay-107"><a href="#Invoice.pay-107"><span class="linenos">107</span></a>        <span class="k">if</span> <span class="n">payment</span><span class="o">.</span><span class="n">amount</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="p">:</span>
-</span><span id="Invoice.pay-108"><a href="#Invoice.pay-108"><span class="linenos">108</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="Invoice.pay-109"><a href="#Invoice.pay-109"><span class="linenos">109</span></a>                <span class="sa">f</span><span class="s2">"Payment amount </span><span class="si">{</span><span class="n">payment</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> does not match "</span>
-</span><span id="Invoice.pay-110"><a href="#Invoice.pay-110"><span class="linenos">110</span></a>                <span class="sa">f</span><span class="s2">"invoice amount </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="Invoice.pay-111"><a href="#Invoice.pay-111"><span class="linenos">111</span></a>            <span class="p">)</span>
-</span><span id="Invoice.pay-112"><a href="#Invoice.pay-112"><span class="linenos">112</span></a>        <span class="n">payment</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</span><span id="Invoice.pay-113"><a href="#Invoice.pay-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="n">payment</span>
-</span><span id="Invoice.pay-114"><a href="#Invoice.pay-114"><span class="linenos">114</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
-</span><span id="Invoice.pay-115"><a href="#Invoice.pay-115"><span class="linenos">115</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
-</span><span id="Invoice.pay-116"><a href="#Invoice.pay-116"><span class="linenos">116</span></a>        <span class="k">return</span> <span class="kc">True</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.pay-92"><a href="#Invoice.pay-92"><span class="linenos"> 92</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payment</span><span class="p">):</span>
+</span><span id="Invoice.pay-93"><a href="#Invoice.pay-93"><span class="linenos"> 93</span></a><span class="w">        </span><span class="sd">"""Pay the invoice.</span>
+</span><span id="Invoice.pay-94"><a href="#Invoice.pay-94"><span class="linenos"> 94</span></a>
+</span><span id="Invoice.pay-95"><a href="#Invoice.pay-95"><span class="linenos"> 95</span></a><span class="sd">        Args:</span>
+</span><span id="Invoice.pay-96"><a href="#Invoice.pay-96"><span class="linenos"> 96</span></a><span class="sd">            payment: The payment. Must expose `.amount` and `.process()`.</span>
+</span><span id="Invoice.pay-97"><a href="#Invoice.pay-97"><span class="linenos"> 97</span></a>
+</span><span id="Invoice.pay-98"><a href="#Invoice.pay-98"><span class="linenos"> 98</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice.pay-99"><a href="#Invoice.pay-99"><span class="linenos"> 99</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="Invoice.pay-100"><a href="#Invoice.pay-100"><span class="linenos">100</span></a><span class="sd">            ValueError: If payment is None or its amount does not match.</span>
+</span><span id="Invoice.pay-101"><a href="#Invoice.pay-101"><span class="linenos">101</span></a><span class="sd">            PaymentFailedException: Propagated from payment.process().</span>
+</span><span id="Invoice.pay-102"><a href="#Invoice.pay-102"><span class="linenos">102</span></a><span class="sd">        """</span>
+</span><span id="Invoice.pay-103"><a href="#Invoice.pay-103"><span class="linenos">103</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="Invoice.pay-104"><a href="#Invoice.pay-104"><span class="linenos">104</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Invoice.pay-105"><a href="#Invoice.pay-105"><span class="linenos">105</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="Invoice.pay-106"><a href="#Invoice.pay-106"><span class="linenos">106</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="Invoice.pay-107"><a href="#Invoice.pay-107"><span class="linenos">107</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot pay an invoice that is not issued"</span><span class="p">,</span>
+</span><span id="Invoice.pay-108"><a href="#Invoice.pay-108"><span class="linenos">108</span></a>            <span class="p">)</span>
+</span><span id="Invoice.pay-109"><a href="#Invoice.pay-109"><span class="linenos">109</span></a>        <span class="k">if</span> <span class="n">payment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Invoice.pay-110"><a href="#Invoice.pay-110"><span class="linenos">110</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Payment must not be None"</span><span class="p">)</span>
+</span><span id="Invoice.pay-111"><a href="#Invoice.pay-111"><span class="linenos">111</span></a>        <span class="k">if</span> <span class="n">payment</span><span class="o">.</span><span class="n">amount</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="p">:</span>
+</span><span id="Invoice.pay-112"><a href="#Invoice.pay-112"><span class="linenos">112</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="Invoice.pay-113"><a href="#Invoice.pay-113"><span class="linenos">113</span></a>                <span class="sa">f</span><span class="s2">"Payment amount </span><span class="si">{</span><span class="n">payment</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2"> does not match "</span>
+</span><span id="Invoice.pay-114"><a href="#Invoice.pay-114"><span class="linenos">114</span></a>                <span class="sa">f</span><span class="s2">"invoice amount </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_amount</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="Invoice.pay-115"><a href="#Invoice.pay-115"><span class="linenos">115</span></a>            <span class="p">)</span>
+</span><span id="Invoice.pay-116"><a href="#Invoice.pay-116"><span class="linenos">116</span></a>        <span class="n">payment</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</span><span id="Invoice.pay-117"><a href="#Invoice.pay-117"><span class="linenos">117</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_payment</span> <span class="o">=</span> <span class="n">payment</span>
+</span><span id="Invoice.pay-118"><a href="#Invoice.pay-118"><span class="linenos">118</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_PAID</span>
+</span><span id="Invoice.pay-119"><a href="#Invoice.pay-119"><span class="linenos">119</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_paid_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+</span><span id="Invoice.pay-120"><a href="#Invoice.pay-120"><span class="linenos">120</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span></pre></div>
 
 
@@ -750,20 +762,20 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.cancel"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.cancel-118"><a href="#Invoice.cancel-118"><span class="linenos">118</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Invoice.cancel-119"><a href="#Invoice.cancel-119"><span class="linenos">119</span></a><span class="w">        </span><span class="sd">"""Cancel the invoice.</span>
-</span><span id="Invoice.cancel-120"><a href="#Invoice.cancel-120"><span class="linenos">120</span></a>
-</span><span id="Invoice.cancel-121"><a href="#Invoice.cancel-121"><span class="linenos">121</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice.cancel-122"><a href="#Invoice.cancel-122"><span class="linenos">122</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="Invoice.cancel-123"><a href="#Invoice.cancel-123"><span class="linenos">123</span></a><span class="sd">        """</span>
-</span><span id="Invoice.cancel-124"><a href="#Invoice.cancel-124"><span class="linenos">124</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="Invoice.cancel-125"><a href="#Invoice.cancel-125"><span class="linenos">125</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Invoice.cancel-126"><a href="#Invoice.cancel-126"><span class="linenos">126</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="Invoice.cancel-127"><a href="#Invoice.cancel-127"><span class="linenos">127</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="Invoice.cancel-128"><a href="#Invoice.cancel-128"><span class="linenos">128</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot cancel an invoice that is not issued"</span><span class="p">,</span>
-</span><span id="Invoice.cancel-129"><a href="#Invoice.cancel-129"><span class="linenos">129</span></a>            <span class="p">)</span>
-</span><span id="Invoice.cancel-130"><a href="#Invoice.cancel-130"><span class="linenos">130</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
-</span><span id="Invoice.cancel-131"><a href="#Invoice.cancel-131"><span class="linenos">131</span></a>        <span class="k">return</span> <span class="kc">True</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.cancel-122"><a href="#Invoice.cancel-122"><span class="linenos">122</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Invoice.cancel-123"><a href="#Invoice.cancel-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">"""Cancel the invoice.</span>
+</span><span id="Invoice.cancel-124"><a href="#Invoice.cancel-124"><span class="linenos">124</span></a>
+</span><span id="Invoice.cancel-125"><a href="#Invoice.cancel-125"><span class="linenos">125</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice.cancel-126"><a href="#Invoice.cancel-126"><span class="linenos">126</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="Invoice.cancel-127"><a href="#Invoice.cancel-127"><span class="linenos">127</span></a><span class="sd">        """</span>
+</span><span id="Invoice.cancel-128"><a href="#Invoice.cancel-128"><span class="linenos">128</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="Invoice.cancel-129"><a href="#Invoice.cancel-129"><span class="linenos">129</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Invoice.cancel-130"><a href="#Invoice.cancel-130"><span class="linenos">130</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="Invoice.cancel-131"><a href="#Invoice.cancel-131"><span class="linenos">131</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="Invoice.cancel-132"><a href="#Invoice.cancel-132"><span class="linenos">132</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot cancel an invoice that is not issued"</span><span class="p">,</span>
+</span><span id="Invoice.cancel-133"><a href="#Invoice.cancel-133"><span class="linenos">133</span></a>            <span class="p">)</span>
+</span><span id="Invoice.cancel-134"><a href="#Invoice.cancel-134"><span class="linenos">134</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_CANCELLED</span>
+</span><span id="Invoice.cancel-135"><a href="#Invoice.cancel-135"><span class="linenos">135</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span></pre></div>
 
 
@@ -786,26 +798,26 @@ state. Payment must match the invoice amount exactly.</p>
 
     </div>
     <a class="headerlink" href="#Invoice.change_amount"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.change_amount-134"><a href="#Invoice.change_amount-134"><span class="linenos">134</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">change_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-</span><span id="Invoice.change_amount-135"><a href="#Invoice.change_amount-135"><span class="linenos">135</span></a><span class="w">        </span><span class="sd">"""Change the invoice amount.</span>
-</span><span id="Invoice.change_amount-136"><a href="#Invoice.change_amount-136"><span class="linenos">136</span></a>
-</span><span id="Invoice.change_amount-137"><a href="#Invoice.change_amount-137"><span class="linenos">137</span></a><span class="sd">        Args:</span>
-</span><span id="Invoice.change_amount-138"><a href="#Invoice.change_amount-138"><span class="linenos">138</span></a><span class="sd">            new_amount: New amount. Must be positive.</span>
-</span><span id="Invoice.change_amount-139"><a href="#Invoice.change_amount-139"><span class="linenos">139</span></a>
-</span><span id="Invoice.change_amount-140"><a href="#Invoice.change_amount-140"><span class="linenos">140</span></a><span class="sd">        Raises:</span>
-</span><span id="Invoice.change_amount-141"><a href="#Invoice.change_amount-141"><span class="linenos">141</span></a><span class="sd">            ValueError: If new_amount is not positive.</span>
-</span><span id="Invoice.change_amount-142"><a href="#Invoice.change_amount-142"><span class="linenos">142</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
-</span><span id="Invoice.change_amount-143"><a href="#Invoice.change_amount-143"><span class="linenos">143</span></a><span class="sd">        """</span>
-</span><span id="Invoice.change_amount-144"><a href="#Invoice.change_amount-144"><span class="linenos">144</span></a>        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="Invoice.change_amount-145"><a href="#Invoice.change_amount-145"><span class="linenos">145</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">new_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="Invoice.change_amount-146"><a href="#Invoice.change_amount-146"><span class="linenos">146</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
-</span><span id="Invoice.change_amount-147"><a href="#Invoice.change_amount-147"><span class="linenos">147</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Invoice.change_amount-148"><a href="#Invoice.change_amount-148"><span class="linenos">148</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
-</span><span id="Invoice.change_amount-149"><a href="#Invoice.change_amount-149"><span class="linenos">149</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
-</span><span id="Invoice.change_amount-150"><a href="#Invoice.change_amount-150"><span class="linenos">150</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot change amount of a non-issued invoice"</span><span class="p">,</span>
-</span><span id="Invoice.change_amount-151"><a href="#Invoice.change_amount-151"><span class="linenos">151</span></a>            <span class="p">)</span>
-</span><span id="Invoice.change_amount-152"><a href="#Invoice.change_amount-152"><span class="linenos">152</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">new_amount</span>
-</span><span id="Invoice.change_amount-153"><a href="#Invoice.change_amount-153"><span class="linenos">153</span></a>        <span class="k">return</span> <span class="kc">True</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Invoice.change_amount-138"><a href="#Invoice.change_amount-138"><span class="linenos">138</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">change_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+</span><span id="Invoice.change_amount-139"><a href="#Invoice.change_amount-139"><span class="linenos">139</span></a><span class="w">        </span><span class="sd">"""Change the invoice amount.</span>
+</span><span id="Invoice.change_amount-140"><a href="#Invoice.change_amount-140"><span class="linenos">140</span></a>
+</span><span id="Invoice.change_amount-141"><a href="#Invoice.change_amount-141"><span class="linenos">141</span></a><span class="sd">        Args:</span>
+</span><span id="Invoice.change_amount-142"><a href="#Invoice.change_amount-142"><span class="linenos">142</span></a><span class="sd">            new_amount: New amount. Must be positive.</span>
+</span><span id="Invoice.change_amount-143"><a href="#Invoice.change_amount-143"><span class="linenos">143</span></a>
+</span><span id="Invoice.change_amount-144"><a href="#Invoice.change_amount-144"><span class="linenos">144</span></a><span class="sd">        Raises:</span>
+</span><span id="Invoice.change_amount-145"><a href="#Invoice.change_amount-145"><span class="linenos">145</span></a><span class="sd">            ValueError: If new_amount is not positive.</span>
+</span><span id="Invoice.change_amount-146"><a href="#Invoice.change_amount-146"><span class="linenos">146</span></a><span class="sd">            InvalidExhibitStateException: If the invoice is not issued.</span>
+</span><span id="Invoice.change_amount-147"><a href="#Invoice.change_amount-147"><span class="linenos">147</span></a><span class="sd">        """</span>
+</span><span id="Invoice.change_amount-148"><a href="#Invoice.change_amount-148"><span class="linenos">148</span></a>        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="Invoice.change_amount-149"><a href="#Invoice.change_amount-149"><span class="linenos">149</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount must be positive, got </span><span class="si">{</span><span class="n">new_amount</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="Invoice.change_amount-150"><a href="#Invoice.change_amount-150"><span class="linenos">150</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">!=</span> <span class="n">Invoice</span><span class="o">.</span><span class="n">STATUS_ISSUED</span><span class="p">:</span>
+</span><span id="Invoice.change_amount-151"><a href="#Invoice.change_amount-151"><span class="linenos">151</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Invoice.change_amount-152"><a href="#Invoice.change_amount-152"><span class="linenos">152</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_number</span><span class="p">,</span>
+</span><span id="Invoice.change_amount-153"><a href="#Invoice.change_amount-153"><span class="linenos">153</span></a>                <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span>
+</span><span id="Invoice.change_amount-154"><a href="#Invoice.change_amount-154"><span class="linenos">154</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Cannot change amount of a non-issued invoice"</span><span class="p">,</span>
+</span><span id="Invoice.change_amount-155"><a href="#Invoice.change_amount-155"><span class="linenos">155</span></a>            <span class="p">)</span>
+</span><span id="Invoice.change_amount-156"><a href="#Invoice.change_amount-156"><span class="linenos">156</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_amount</span> <span class="o">=</span> <span class="n">new_amount</span>
+</span><span id="Invoice.change_amount-157"><a href="#Invoice.change_amount-157"><span class="linenos">157</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span></pre></div>
 
 

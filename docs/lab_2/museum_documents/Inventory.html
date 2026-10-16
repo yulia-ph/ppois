@@ -58,6 +58,9 @@
                                 <a class="function" href="#Inventory.count_scanned">count_scanned</a>
                         </li>
                         <li>
+                                <a class="function" href="#Inventory.diff">diff</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Inventory.reconcile">reconcile</a>
                         </li>
                         <li>
@@ -168,53 +171,63 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="w">        </span><span class="sd">"""Return the number of scanned exhibits."""</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">)</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="w">        </span><span class="sd">"""Reconcile scanned exhibits against a catalog.</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">diff</span><span class="p">(</span><span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">catalog</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="w">        </span><span class="sd">"""Return (missing, extra) relative to a catalog.</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">        Args:</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">            catalog_exhibits: The reference list of exhibits that</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">                should be present.</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">        Raises:</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">            ValueError: If catalog_exhibits is None.</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">            InvalidExhibitStateException: If already reconciled.</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">        """</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="k">if</span> <span class="n">catalog_exhibits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Catalog list must not be None"</span><span class="p">)</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>                <span class="n">state</span><span class="o">=</span><span class="s2">"reconciled"</span><span class="p">,</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Inventory has already been reconciled"</span><span class="p">,</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>            <span class="p">)</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">]</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span><span class="p">]</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span> <span class="o">=</span> <span class="n">missing</span> <span class="o">+</span> <span class="n">extra</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="w">        </span><span class="sd">"""Return True if there are no mismatches after reconciliation.</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">        Returns False if reconciliation has not yet happened.</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">        """</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="w">        </span><span class="sd">"""Generate a Report instance summarizing this inventory."""</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Report</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="s2">"inventory"</span><span class="p">)</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="n">report</span><span class="o">.</span><span class="n">generate</span><span class="p">({</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>            <span class="s2">"responsible"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>            <span class="s2">"scanned"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">),</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>            <span class="s2">"mismatches"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">),</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span><span class="p">(),</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="p">})</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>        <span class="k">return</span> <span class="n">report</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">        Missing: in the catalog but not in `found`.</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        Extra: in `found` but not in the catalog.</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        """</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">found</span><span class="p">]</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">found</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">]</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="k">return</span> <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">        </span><span class="sd">"""Reconcile scanned exhibits against a catalog.</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">        Args:</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">            catalog_exhibits: The reference list of exhibits that</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">                should be present.</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">        Raises:</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">            ValueError: If catalog_exhibits is None.</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">            InvalidExhibitStateException: If already reconciled.</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        """</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="k">if</span> <span class="n">catalog_exhibits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Catalog list must not be None"</span><span class="p">)</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>                <span class="n">state</span><span class="o">=</span><span class="s2">"reconciled"</span><span class="p">,</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Inventory has already been reconciled"</span><span class="p">,</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>            <span class="p">)</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">)</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span> <span class="o">=</span> <span class="n">missing</span> <span class="o">+</span> <span class="n">extra</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="w">        </span><span class="sd">"""Return True if there are no mismatches after reconciliation.</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">        Returns False if reconciliation has not yet happened.</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">        """</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="w">        </span><span class="sd">"""Generate a Report instance summarizing this inventory."""</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Report</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="s2">"inventory"</span><span class="p">)</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="n">report</span><span class="o">.</span><span class="n">generate</span><span class="p">({</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>            <span class="s2">"responsible"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>            <span class="s2">"scanned"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">),</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>            <span class="s2">"mismatches"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">),</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span><span class="p">(),</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>        <span class="p">})</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>        <span class="k">return</span> <span class="n">report</span>
 </span></pre></div>
 
 
@@ -303,53 +316,63 @@
 </span><span id="Inventory-77"><a href="#Inventory-77"><span class="linenos"> 77</span></a><span class="w">        </span><span class="sd">"""Return the number of scanned exhibits."""</span>
 </span><span id="Inventory-78"><a href="#Inventory-78"><span class="linenos"> 78</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">)</span>
 </span><span id="Inventory-79"><a href="#Inventory-79"><span class="linenos"> 79</span></a>
-</span><span id="Inventory-80"><a href="#Inventory-80"><span class="linenos"> 80</span></a>
-</span><span id="Inventory-81"><a href="#Inventory-81"><span class="linenos"> 81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="Inventory-82"><a href="#Inventory-82"><span class="linenos"> 82</span></a><span class="w">        </span><span class="sd">"""Reconcile scanned exhibits against a catalog.</span>
+</span><span id="Inventory-80"><a href="#Inventory-80"><span class="linenos"> 80</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="Inventory-81"><a href="#Inventory-81"><span class="linenos"> 81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">diff</span><span class="p">(</span><span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">catalog</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="Inventory-82"><a href="#Inventory-82"><span class="linenos"> 82</span></a><span class="w">        </span><span class="sd">"""Return (missing, extra) relative to a catalog.</span>
 </span><span id="Inventory-83"><a href="#Inventory-83"><span class="linenos"> 83</span></a>
-</span><span id="Inventory-84"><a href="#Inventory-84"><span class="linenos"> 84</span></a><span class="sd">        Args:</span>
-</span><span id="Inventory-85"><a href="#Inventory-85"><span class="linenos"> 85</span></a><span class="sd">            catalog_exhibits: The reference list of exhibits that</span>
-</span><span id="Inventory-86"><a href="#Inventory-86"><span class="linenos"> 86</span></a><span class="sd">                should be present.</span>
-</span><span id="Inventory-87"><a href="#Inventory-87"><span class="linenos"> 87</span></a>
-</span><span id="Inventory-88"><a href="#Inventory-88"><span class="linenos"> 88</span></a><span class="sd">        Raises:</span>
-</span><span id="Inventory-89"><a href="#Inventory-89"><span class="linenos"> 89</span></a><span class="sd">            ValueError: If catalog_exhibits is None.</span>
-</span><span id="Inventory-90"><a href="#Inventory-90"><span class="linenos"> 90</span></a><span class="sd">            InvalidExhibitStateException: If already reconciled.</span>
-</span><span id="Inventory-91"><a href="#Inventory-91"><span class="linenos"> 91</span></a><span class="sd">        """</span>
-</span><span id="Inventory-92"><a href="#Inventory-92"><span class="linenos"> 92</span></a>        <span class="k">if</span> <span class="n">catalog_exhibits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Inventory-93"><a href="#Inventory-93"><span class="linenos"> 93</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Catalog list must not be None"</span><span class="p">)</span>
-</span><span id="Inventory-94"><a href="#Inventory-94"><span class="linenos"> 94</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
-</span><span id="Inventory-95"><a href="#Inventory-95"><span class="linenos"> 95</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Inventory-96"><a href="#Inventory-96"><span class="linenos"> 96</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span>
-</span><span id="Inventory-97"><a href="#Inventory-97"><span class="linenos"> 97</span></a>                <span class="n">state</span><span class="o">=</span><span class="s2">"reconciled"</span><span class="p">,</span>
-</span><span id="Inventory-98"><a href="#Inventory-98"><span class="linenos"> 98</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Inventory has already been reconciled"</span><span class="p">,</span>
-</span><span id="Inventory-99"><a href="#Inventory-99"><span class="linenos"> 99</span></a>            <span class="p">)</span>
-</span><span id="Inventory-100"><a href="#Inventory-100"><span class="linenos">100</span></a>
-</span><span id="Inventory-101"><a href="#Inventory-101"><span class="linenos">101</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">]</span>
-</span><span id="Inventory-102"><a href="#Inventory-102"><span class="linenos">102</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span><span class="p">]</span>
-</span><span id="Inventory-103"><a href="#Inventory-103"><span class="linenos">103</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span> <span class="o">=</span> <span class="n">missing</span> <span class="o">+</span> <span class="n">extra</span>
-</span><span id="Inventory-104"><a href="#Inventory-104"><span class="linenos">104</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="Inventory-105"><a href="#Inventory-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="Inventory-106"><a href="#Inventory-106"><span class="linenos">106</span></a>
-</span><span id="Inventory-107"><a href="#Inventory-107"><span class="linenos">107</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="Inventory-108"><a href="#Inventory-108"><span class="linenos">108</span></a><span class="w">        </span><span class="sd">"""Return True if there are no mismatches after reconciliation.</span>
-</span><span id="Inventory-109"><a href="#Inventory-109"><span class="linenos">109</span></a>
-</span><span id="Inventory-110"><a href="#Inventory-110"><span class="linenos">110</span></a><span class="sd">        Returns False if reconciliation has not yet happened.</span>
-</span><span id="Inventory-111"><a href="#Inventory-111"><span class="linenos">111</span></a><span class="sd">        """</span>
-</span><span id="Inventory-112"><a href="#Inventory-112"><span class="linenos">112</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
-</span><span id="Inventory-113"><a href="#Inventory-113"><span class="linenos">113</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="Inventory-114"><a href="#Inventory-114"><span class="linenos">114</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span id="Inventory-115"><a href="#Inventory-115"><span class="linenos">115</span></a>
-</span><span id="Inventory-116"><a href="#Inventory-116"><span class="linenos">116</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Inventory-117"><a href="#Inventory-117"><span class="linenos">117</span></a><span class="w">        </span><span class="sd">"""Generate a Report instance summarizing this inventory."""</span>
-</span><span id="Inventory-118"><a href="#Inventory-118"><span class="linenos">118</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Report</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
-</span><span id="Inventory-119"><a href="#Inventory-119"><span class="linenos">119</span></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="s2">"inventory"</span><span class="p">)</span>
-</span><span id="Inventory-120"><a href="#Inventory-120"><span class="linenos">120</span></a>        <span class="n">report</span><span class="o">.</span><span class="n">generate</span><span class="p">({</span>
-</span><span id="Inventory-121"><a href="#Inventory-121"><span class="linenos">121</span></a>            <span class="s2">"responsible"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Inventory-122"><a href="#Inventory-122"><span class="linenos">122</span></a>            <span class="s2">"scanned"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">),</span>
-</span><span id="Inventory-123"><a href="#Inventory-123"><span class="linenos">123</span></a>            <span class="s2">"mismatches"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">),</span>
-</span><span id="Inventory-124"><a href="#Inventory-124"><span class="linenos">124</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span><span class="p">(),</span>
-</span><span id="Inventory-125"><a href="#Inventory-125"><span class="linenos">125</span></a>        <span class="p">})</span>
-</span><span id="Inventory-126"><a href="#Inventory-126"><span class="linenos">126</span></a>        <span class="k">return</span> <span class="n">report</span>
+</span><span id="Inventory-84"><a href="#Inventory-84"><span class="linenos"> 84</span></a><span class="sd">        Missing: in the catalog but not in `found`.</span>
+</span><span id="Inventory-85"><a href="#Inventory-85"><span class="linenos"> 85</span></a><span class="sd">        Extra: in `found` but not in the catalog.</span>
+</span><span id="Inventory-86"><a href="#Inventory-86"><span class="linenos"> 86</span></a><span class="sd">        """</span>
+</span><span id="Inventory-87"><a href="#Inventory-87"><span class="linenos"> 87</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">found</span><span class="p">]</span>
+</span><span id="Inventory-88"><a href="#Inventory-88"><span class="linenos"> 88</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">found</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">]</span>
+</span><span id="Inventory-89"><a href="#Inventory-89"><span class="linenos"> 89</span></a>        <span class="k">return</span> <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span>
+</span><span id="Inventory-90"><a href="#Inventory-90"><span class="linenos"> 90</span></a>
+</span><span id="Inventory-91"><a href="#Inventory-91"><span class="linenos"> 91</span></a>
+</span><span id="Inventory-92"><a href="#Inventory-92"><span class="linenos"> 92</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="Inventory-93"><a href="#Inventory-93"><span class="linenos"> 93</span></a><span class="w">        </span><span class="sd">"""Reconcile scanned exhibits against a catalog.</span>
+</span><span id="Inventory-94"><a href="#Inventory-94"><span class="linenos"> 94</span></a>
+</span><span id="Inventory-95"><a href="#Inventory-95"><span class="linenos"> 95</span></a><span class="sd">        Args:</span>
+</span><span id="Inventory-96"><a href="#Inventory-96"><span class="linenos"> 96</span></a><span class="sd">            catalog_exhibits: The reference list of exhibits that</span>
+</span><span id="Inventory-97"><a href="#Inventory-97"><span class="linenos"> 97</span></a><span class="sd">                should be present.</span>
+</span><span id="Inventory-98"><a href="#Inventory-98"><span class="linenos"> 98</span></a>
+</span><span id="Inventory-99"><a href="#Inventory-99"><span class="linenos"> 99</span></a><span class="sd">        Raises:</span>
+</span><span id="Inventory-100"><a href="#Inventory-100"><span class="linenos">100</span></a><span class="sd">            ValueError: If catalog_exhibits is None.</span>
+</span><span id="Inventory-101"><a href="#Inventory-101"><span class="linenos">101</span></a><span class="sd">            InvalidExhibitStateException: If already reconciled.</span>
+</span><span id="Inventory-102"><a href="#Inventory-102"><span class="linenos">102</span></a><span class="sd">        """</span>
+</span><span id="Inventory-103"><a href="#Inventory-103"><span class="linenos">103</span></a>        <span class="k">if</span> <span class="n">catalog_exhibits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Inventory-104"><a href="#Inventory-104"><span class="linenos">104</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Catalog list must not be None"</span><span class="p">)</span>
+</span><span id="Inventory-105"><a href="#Inventory-105"><span class="linenos">105</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
+</span><span id="Inventory-106"><a href="#Inventory-106"><span class="linenos">106</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Inventory-107"><a href="#Inventory-107"><span class="linenos">107</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span>
+</span><span id="Inventory-108"><a href="#Inventory-108"><span class="linenos">108</span></a>                <span class="n">state</span><span class="o">=</span><span class="s2">"reconciled"</span><span class="p">,</span>
+</span><span id="Inventory-109"><a href="#Inventory-109"><span class="linenos">109</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Inventory has already been reconciled"</span><span class="p">,</span>
+</span><span id="Inventory-110"><a href="#Inventory-110"><span class="linenos">110</span></a>            <span class="p">)</span>
+</span><span id="Inventory-111"><a href="#Inventory-111"><span class="linenos">111</span></a>
+</span><span id="Inventory-112"><a href="#Inventory-112"><span class="linenos">112</span></a>        <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">)</span>
+</span><span id="Inventory-113"><a href="#Inventory-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span> <span class="o">=</span> <span class="n">missing</span> <span class="o">+</span> <span class="n">extra</span>
+</span><span id="Inventory-114"><a href="#Inventory-114"><span class="linenos">114</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="Inventory-115"><a href="#Inventory-115"><span class="linenos">115</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="Inventory-116"><a href="#Inventory-116"><span class="linenos">116</span></a>
+</span><span id="Inventory-117"><a href="#Inventory-117"><span class="linenos">117</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Inventory-118"><a href="#Inventory-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">"""Return True if there are no mismatches after reconciliation.</span>
+</span><span id="Inventory-119"><a href="#Inventory-119"><span class="linenos">119</span></a>
+</span><span id="Inventory-120"><a href="#Inventory-120"><span class="linenos">120</span></a><span class="sd">        Returns False if reconciliation has not yet happened.</span>
+</span><span id="Inventory-121"><a href="#Inventory-121"><span class="linenos">121</span></a><span class="sd">        """</span>
+</span><span id="Inventory-122"><a href="#Inventory-122"><span class="linenos">122</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
+</span><span id="Inventory-123"><a href="#Inventory-123"><span class="linenos">123</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="Inventory-124"><a href="#Inventory-124"><span class="linenos">124</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span id="Inventory-125"><a href="#Inventory-125"><span class="linenos">125</span></a>
+</span><span id="Inventory-126"><a href="#Inventory-126"><span class="linenos">126</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Inventory-127"><a href="#Inventory-127"><span class="linenos">127</span></a><span class="w">        </span><span class="sd">"""Generate a Report instance summarizing this inventory."""</span>
+</span><span id="Inventory-128"><a href="#Inventory-128"><span class="linenos">128</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Report</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
+</span><span id="Inventory-129"><a href="#Inventory-129"><span class="linenos">129</span></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="s2">"inventory"</span><span class="p">)</span>
+</span><span id="Inventory-130"><a href="#Inventory-130"><span class="linenos">130</span></a>        <span class="n">report</span><span class="o">.</span><span class="n">generate</span><span class="p">({</span>
+</span><span id="Inventory-131"><a href="#Inventory-131"><span class="linenos">131</span></a>            <span class="s2">"responsible"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Inventory-132"><a href="#Inventory-132"><span class="linenos">132</span></a>            <span class="s2">"scanned"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">),</span>
+</span><span id="Inventory-133"><a href="#Inventory-133"><span class="linenos">133</span></a>            <span class="s2">"mismatches"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">),</span>
+</span><span id="Inventory-134"><a href="#Inventory-134"><span class="linenos">134</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span><span class="p">(),</span>
+</span><span id="Inventory-135"><a href="#Inventory-135"><span class="linenos">135</span></a>        <span class="p">})</span>
+</span><span id="Inventory-136"><a href="#Inventory-136"><span class="linenos">136</span></a>        <span class="k">return</span> <span class="n">report</span>
 </span></pre></div>
 
 
@@ -560,6 +583,39 @@ scanned, and no scanned exhibit is missing from the catalog.</p>
 
 
                             </div>
+                            <div id="Inventory.diff" class="classattr">
+                                        <input id="Inventory.diff-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">diff</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">found</span><span class="p">:</span> <span class="nb">list</span>, </span><span class="param"><span class="n">catalog</span><span class="p">:</span> <span class="nb">list</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Inventory.diff-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Inventory.diff"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Inventory.diff-80"><a href="#Inventory.diff-80"><span class="linenos">80</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="Inventory.diff-81"><a href="#Inventory.diff-81"><span class="linenos">81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">diff</span><span class="p">(</span><span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">catalog</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="Inventory.diff-82"><a href="#Inventory.diff-82"><span class="linenos">82</span></a><span class="w">        </span><span class="sd">"""Return (missing, extra) relative to a catalog.</span>
+</span><span id="Inventory.diff-83"><a href="#Inventory.diff-83"><span class="linenos">83</span></a>
+</span><span id="Inventory.diff-84"><a href="#Inventory.diff-84"><span class="linenos">84</span></a><span class="sd">        Missing: in the catalog but not in `found`.</span>
+</span><span id="Inventory.diff-85"><a href="#Inventory.diff-85"><span class="linenos">85</span></a><span class="sd">        Extra: in `found` but not in the catalog.</span>
+</span><span id="Inventory.diff-86"><a href="#Inventory.diff-86"><span class="linenos">86</span></a><span class="sd">        """</span>
+</span><span id="Inventory.diff-87"><a href="#Inventory.diff-87"><span class="linenos">87</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">found</span><span class="p">]</span>
+</span><span id="Inventory.diff-88"><a href="#Inventory.diff-88"><span class="linenos">88</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">found</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">]</span>
+</span><span id="Inventory.diff-89"><a href="#Inventory.diff-89"><span class="linenos">89</span></a>        <span class="k">return</span> <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Return (missing, extra) relative to a catalog.</p>
+
+<p>Missing: in the catalog but not in <code>found</code>.
+Extra: in <code>found</code> but not in the catalog.</p>
+</div>
+
+
+                            </div>
                             <div id="Inventory.reconcile" class="classattr">
                                         <input id="Inventory.reconcile-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -571,31 +627,30 @@ scanned, and no scanned exhibit is missing from the catalog.</p>
 
     </div>
     <a class="headerlink" href="#Inventory.reconcile"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Inventory.reconcile-81"><a href="#Inventory.reconcile-81"><span class="linenos"> 81</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="Inventory.reconcile-82"><a href="#Inventory.reconcile-82"><span class="linenos"> 82</span></a><span class="w">        </span><span class="sd">"""Reconcile scanned exhibits against a catalog.</span>
-</span><span id="Inventory.reconcile-83"><a href="#Inventory.reconcile-83"><span class="linenos"> 83</span></a>
-</span><span id="Inventory.reconcile-84"><a href="#Inventory.reconcile-84"><span class="linenos"> 84</span></a><span class="sd">        Args:</span>
-</span><span id="Inventory.reconcile-85"><a href="#Inventory.reconcile-85"><span class="linenos"> 85</span></a><span class="sd">            catalog_exhibits: The reference list of exhibits that</span>
-</span><span id="Inventory.reconcile-86"><a href="#Inventory.reconcile-86"><span class="linenos"> 86</span></a><span class="sd">                should be present.</span>
-</span><span id="Inventory.reconcile-87"><a href="#Inventory.reconcile-87"><span class="linenos"> 87</span></a>
-</span><span id="Inventory.reconcile-88"><a href="#Inventory.reconcile-88"><span class="linenos"> 88</span></a><span class="sd">        Raises:</span>
-</span><span id="Inventory.reconcile-89"><a href="#Inventory.reconcile-89"><span class="linenos"> 89</span></a><span class="sd">            ValueError: If catalog_exhibits is None.</span>
-</span><span id="Inventory.reconcile-90"><a href="#Inventory.reconcile-90"><span class="linenos"> 90</span></a><span class="sd">            InvalidExhibitStateException: If already reconciled.</span>
-</span><span id="Inventory.reconcile-91"><a href="#Inventory.reconcile-91"><span class="linenos"> 91</span></a><span class="sd">        """</span>
-</span><span id="Inventory.reconcile-92"><a href="#Inventory.reconcile-92"><span class="linenos"> 92</span></a>        <span class="k">if</span> <span class="n">catalog_exhibits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Inventory.reconcile-93"><a href="#Inventory.reconcile-93"><span class="linenos"> 93</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Catalog list must not be None"</span><span class="p">)</span>
-</span><span id="Inventory.reconcile-94"><a href="#Inventory.reconcile-94"><span class="linenos"> 94</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
-</span><span id="Inventory.reconcile-95"><a href="#Inventory.reconcile-95"><span class="linenos"> 95</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
-</span><span id="Inventory.reconcile-96"><a href="#Inventory.reconcile-96"><span class="linenos"> 96</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span>
-</span><span id="Inventory.reconcile-97"><a href="#Inventory.reconcile-97"><span class="linenos"> 97</span></a>                <span class="n">state</span><span class="o">=</span><span class="s2">"reconciled"</span><span class="p">,</span>
-</span><span id="Inventory.reconcile-98"><a href="#Inventory.reconcile-98"><span class="linenos"> 98</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Inventory has already been reconciled"</span><span class="p">,</span>
-</span><span id="Inventory.reconcile-99"><a href="#Inventory.reconcile-99"><span class="linenos"> 99</span></a>            <span class="p">)</span>
-</span><span id="Inventory.reconcile-100"><a href="#Inventory.reconcile-100"><span class="linenos">100</span></a>
-</span><span id="Inventory.reconcile-101"><a href="#Inventory.reconcile-101"><span class="linenos">101</span></a>        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">]</span>
-</span><span id="Inventory.reconcile-102"><a href="#Inventory.reconcile-102"><span class="linenos">102</span></a>        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span> <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span> <span class="k">if</span> <span class="n">ex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catalog_exhibits</span><span class="p">]</span>
-</span><span id="Inventory.reconcile-103"><a href="#Inventory.reconcile-103"><span class="linenos">103</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span> <span class="o">=</span> <span class="n">missing</span> <span class="o">+</span> <span class="n">extra</span>
-</span><span id="Inventory.reconcile-104"><a href="#Inventory.reconcile-104"><span class="linenos">104</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="Inventory.reconcile-105"><a href="#Inventory.reconcile-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="kc">True</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Inventory.reconcile-92"><a href="#Inventory.reconcile-92"><span class="linenos"> 92</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="Inventory.reconcile-93"><a href="#Inventory.reconcile-93"><span class="linenos"> 93</span></a><span class="w">        </span><span class="sd">"""Reconcile scanned exhibits against a catalog.</span>
+</span><span id="Inventory.reconcile-94"><a href="#Inventory.reconcile-94"><span class="linenos"> 94</span></a>
+</span><span id="Inventory.reconcile-95"><a href="#Inventory.reconcile-95"><span class="linenos"> 95</span></a><span class="sd">        Args:</span>
+</span><span id="Inventory.reconcile-96"><a href="#Inventory.reconcile-96"><span class="linenos"> 96</span></a><span class="sd">            catalog_exhibits: The reference list of exhibits that</span>
+</span><span id="Inventory.reconcile-97"><a href="#Inventory.reconcile-97"><span class="linenos"> 97</span></a><span class="sd">                should be present.</span>
+</span><span id="Inventory.reconcile-98"><a href="#Inventory.reconcile-98"><span class="linenos"> 98</span></a>
+</span><span id="Inventory.reconcile-99"><a href="#Inventory.reconcile-99"><span class="linenos"> 99</span></a><span class="sd">        Raises:</span>
+</span><span id="Inventory.reconcile-100"><a href="#Inventory.reconcile-100"><span class="linenos">100</span></a><span class="sd">            ValueError: If catalog_exhibits is None.</span>
+</span><span id="Inventory.reconcile-101"><a href="#Inventory.reconcile-101"><span class="linenos">101</span></a><span class="sd">            InvalidExhibitStateException: If already reconciled.</span>
+</span><span id="Inventory.reconcile-102"><a href="#Inventory.reconcile-102"><span class="linenos">102</span></a><span class="sd">        """</span>
+</span><span id="Inventory.reconcile-103"><a href="#Inventory.reconcile-103"><span class="linenos">103</span></a>        <span class="k">if</span> <span class="n">catalog_exhibits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Inventory.reconcile-104"><a href="#Inventory.reconcile-104"><span class="linenos">104</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Catalog list must not be None"</span><span class="p">)</span>
+</span><span id="Inventory.reconcile-105"><a href="#Inventory.reconcile-105"><span class="linenos">105</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
+</span><span id="Inventory.reconcile-106"><a href="#Inventory.reconcile-106"><span class="linenos">106</span></a>            <span class="k">raise</span> <span class="n">InvalidExhibitStateException</span><span class="p">(</span>
+</span><span id="Inventory.reconcile-107"><a href="#Inventory.reconcile-107"><span class="linenos">107</span></a>                <span class="n">exhibit_title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span>
+</span><span id="Inventory.reconcile-108"><a href="#Inventory.reconcile-108"><span class="linenos">108</span></a>                <span class="n">state</span><span class="o">=</span><span class="s2">"reconciled"</span><span class="p">,</span>
+</span><span id="Inventory.reconcile-109"><a href="#Inventory.reconcile-109"><span class="linenos">109</span></a>                <span class="n">reason</span><span class="o">=</span><span class="s2">"Inventory has already been reconciled"</span><span class="p">,</span>
+</span><span id="Inventory.reconcile-110"><a href="#Inventory.reconcile-110"><span class="linenos">110</span></a>            <span class="p">)</span>
+</span><span id="Inventory.reconcile-111"><a href="#Inventory.reconcile-111"><span class="linenos">111</span></a>
+</span><span id="Inventory.reconcile-112"><a href="#Inventory.reconcile-112"><span class="linenos">112</span></a>        <span class="n">missing</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">,</span> <span class="n">catalog_exhibits</span><span class="p">)</span>
+</span><span id="Inventory.reconcile-113"><a href="#Inventory.reconcile-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span> <span class="o">=</span> <span class="n">missing</span> <span class="o">+</span> <span class="n">extra</span>
+</span><span id="Inventory.reconcile-114"><a href="#Inventory.reconcile-114"><span class="linenos">114</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="Inventory.reconcile-115"><a href="#Inventory.reconcile-115"><span class="linenos">115</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span></pre></div>
 
 
@@ -623,14 +678,14 @@ scanned, and no scanned exhibit is missing from the catalog.</p>
 
     </div>
     <a class="headerlink" href="#Inventory.is_clean"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Inventory.is_clean-107"><a href="#Inventory.is_clean-107"><span class="linenos">107</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="Inventory.is_clean-108"><a href="#Inventory.is_clean-108"><span class="linenos">108</span></a><span class="w">        </span><span class="sd">"""Return True if there are no mismatches after reconciliation.</span>
-</span><span id="Inventory.is_clean-109"><a href="#Inventory.is_clean-109"><span class="linenos">109</span></a>
-</span><span id="Inventory.is_clean-110"><a href="#Inventory.is_clean-110"><span class="linenos">110</span></a><span class="sd">        Returns False if reconciliation has not yet happened.</span>
-</span><span id="Inventory.is_clean-111"><a href="#Inventory.is_clean-111"><span class="linenos">111</span></a><span class="sd">        """</span>
-</span><span id="Inventory.is_clean-112"><a href="#Inventory.is_clean-112"><span class="linenos">112</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
-</span><span id="Inventory.is_clean-113"><a href="#Inventory.is_clean-113"><span class="linenos">113</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="Inventory.is_clean-114"><a href="#Inventory.is_clean-114"><span class="linenos">114</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Inventory.is_clean-117"><a href="#Inventory.is_clean-117"><span class="linenos">117</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Inventory.is_clean-118"><a href="#Inventory.is_clean-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">"""Return True if there are no mismatches after reconciliation.</span>
+</span><span id="Inventory.is_clean-119"><a href="#Inventory.is_clean-119"><span class="linenos">119</span></a>
+</span><span id="Inventory.is_clean-120"><a href="#Inventory.is_clean-120"><span class="linenos">120</span></a><span class="sd">        Returns False if reconciliation has not yet happened.</span>
+</span><span id="Inventory.is_clean-121"><a href="#Inventory.is_clean-121"><span class="linenos">121</span></a><span class="sd">        """</span>
+</span><span id="Inventory.is_clean-122"><a href="#Inventory.is_clean-122"><span class="linenos">122</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconciled</span><span class="p">:</span>
+</span><span id="Inventory.is_clean-123"><a href="#Inventory.is_clean-123"><span class="linenos">123</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="Inventory.is_clean-124"><a href="#Inventory.is_clean-124"><span class="linenos">124</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
 </span></pre></div>
 
 
@@ -652,17 +707,17 @@ scanned, and no scanned exhibit is missing from the catalog.</p>
 
     </div>
     <a class="headerlink" href="#Inventory.generate_report"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Inventory.generate_report-116"><a href="#Inventory.generate_report-116"><span class="linenos">116</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Inventory.generate_report-117"><a href="#Inventory.generate_report-117"><span class="linenos">117</span></a><span class="w">        </span><span class="sd">"""Generate a Report instance summarizing this inventory."""</span>
-</span><span id="Inventory.generate_report-118"><a href="#Inventory.generate_report-118"><span class="linenos">118</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Report</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
-</span><span id="Inventory.generate_report-119"><a href="#Inventory.generate_report-119"><span class="linenos">119</span></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="s2">"inventory"</span><span class="p">)</span>
-</span><span id="Inventory.generate_report-120"><a href="#Inventory.generate_report-120"><span class="linenos">120</span></a>        <span class="n">report</span><span class="o">.</span><span class="n">generate</span><span class="p">({</span>
-</span><span id="Inventory.generate_report-121"><a href="#Inventory.generate_report-121"><span class="linenos">121</span></a>            <span class="s2">"responsible"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Inventory.generate_report-122"><a href="#Inventory.generate_report-122"><span class="linenos">122</span></a>            <span class="s2">"scanned"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">),</span>
-</span><span id="Inventory.generate_report-123"><a href="#Inventory.generate_report-123"><span class="linenos">123</span></a>            <span class="s2">"mismatches"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">),</span>
-</span><span id="Inventory.generate_report-124"><a href="#Inventory.generate_report-124"><span class="linenos">124</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span><span class="p">(),</span>
-</span><span id="Inventory.generate_report-125"><a href="#Inventory.generate_report-125"><span class="linenos">125</span></a>        <span class="p">})</span>
-</span><span id="Inventory.generate_report-126"><a href="#Inventory.generate_report-126"><span class="linenos">126</span></a>        <span class="k">return</span> <span class="n">report</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Inventory.generate_report-126"><a href="#Inventory.generate_report-126"><span class="linenos">126</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Inventory.generate_report-127"><a href="#Inventory.generate_report-127"><span class="linenos">127</span></a><span class="w">        </span><span class="sd">"""Generate a Report instance summarizing this inventory."""</span>
+</span><span id="Inventory.generate_report-128"><a href="#Inventory.generate_report-128"><span class="linenos">128</span></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">museum_documents.Report</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
+</span><span id="Inventory.generate_report-129"><a href="#Inventory.generate_report-129"><span class="linenos">129</span></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="s2">"inventory"</span><span class="p">)</span>
+</span><span id="Inventory.generate_report-130"><a href="#Inventory.generate_report-130"><span class="linenos">130</span></a>        <span class="n">report</span><span class="o">.</span><span class="n">generate</span><span class="p">({</span>
+</span><span id="Inventory.generate_report-131"><a href="#Inventory.generate_report-131"><span class="linenos">131</span></a>            <span class="s2">"responsible"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_responsible</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Inventory.generate_report-132"><a href="#Inventory.generate_report-132"><span class="linenos">132</span></a>            <span class="s2">"scanned"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scanned</span><span class="p">),</span>
+</span><span id="Inventory.generate_report-133"><a href="#Inventory.generate_report-133"><span class="linenos">133</span></a>            <span class="s2">"mismatches"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mismatches</span><span class="p">),</span>
+</span><span id="Inventory.generate_report-134"><a href="#Inventory.generate_report-134"><span class="linenos">134</span></a>            <span class="s2">"is_clean"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span><span class="p">(),</span>
+</span><span id="Inventory.generate_report-135"><a href="#Inventory.generate_report-135"><span class="linenos">135</span></a>        <span class="p">})</span>
+</span><span id="Inventory.generate_report-136"><a href="#Inventory.generate_report-136"><span class="linenos">136</span></a>        <span class="k">return</span> <span class="n">report</span>
 </span></pre></div>
 
 

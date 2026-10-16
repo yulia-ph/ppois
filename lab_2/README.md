@@ -93,11 +93,11 @@ dependencies at runtime, and is fully covered by pytest tests.
 |-------------------|-----------------------------------------------------------------|-----------------------------------------------------------------|
 | `Loan`            | exhibit, borrower, start_date, end_date, status, return_*       | approve_loan, return_exhibit, extend_loan, mark_overdue         |
 | `Restoration`     | exhibit, restorer, start_date, end_date, status, cost, report   | start_restoration, complete_restoration, write_report           |
-| `Inventory`       | date, responsible, scanned, is_reconciled, mismatches           | scan_exhibit, reconcile, is_clean, generate_report              |
+| `Inventory`       | date, responsible, scanned, is_reconciled, mismatches           | scan_exhibit, diff, reconcile, is_clean, generate_report        |
 | `Acquisition`     | source, date, exhibit, price, is_approved, invoice              | approve_acquisition, register_exhibit, is_free                  |
 | `InsurancePolicy` | exhibit, company, amount, valid_until, policy_number            | insure_exhibit, is_active, renew, claim_insurance, cancel       |
 | `StorageMoveAct`  | exhibit, from_storage, to_storage, responsible, is_confirmed    | create, confirm, register_movement, cancel                      |
-| `Invoice`         | number, amount, payer, status, issued_date, paid_date, payment  | issue, pay, cancel, change_amount                               |
+| `Invoice`         | number, amount, payer, status, issued_date, paid_date, payment  | issue, pay, cancel, change_amount (museum is the payer)         |
 | `Contract`        | parties, terms, amount, is_signed, signed_date, permit_number   | add_party, sign, terminate, issue_permit, change_amount         |
 | `Report`          | id, period, type, data, created_date, author                    | set_author, generate, add_section, export, to_string            |
 
@@ -142,7 +142,8 @@ list (out of ~80 total).
 | `Curator`             | `Exhibition`          | curator creates exhibitions                   |
 | `Restorer`            | `Restoration`         | restorer performs restorations                |
 | `Cashier`             | `Ticket`              | cashier sells tickets                         |
-| `Administrator`       | `Invoice`             | admin pays invoices                           |
+| `Administrator`       | `Invoice`             | admin pays supplier invoices from museum budget |
+| `Storage`             | `Inventory`           | `run_inventory` reuses `Inventory.diff`       |
 | `SecurityGuard`       | `AccessControl`       | guard logs access attempts                    |
 | `SecurityGuard`       | `Incident`            | guard reports incidents                       |
 | `Order`               | `ShopItem`            | order contains items (with quantities)        |
@@ -165,18 +166,18 @@ list (out of ~80 total).
 
 ### Use as parameter (A's method takes B)
 
-| From            | Parameter                    | Method                            |
-|-----------------|------------------------------|-----------------------------------|
-| `TicketType`    | `Visitor`                    | `is_eligible(visitor)`            |
-| `TicketType`    | `Visitor`                    | `calculate_price(visitor)`        |
-| `Collection`    | `Exhibit`                    | `add_exhibit(exhibit)`            |
-| `Fund`          | `Exhibit`                    | `accept_item(exhibit)`            |
-| `Building`      | `Hall`, `Room`               | `add_hall`, `add_room`            |
-| `Curator`       | `Loan`                       | `approve_loan(loan)`              |
-| `Administrator` | `Loan`, `Invoice`, `Payment` | `approve_loan`, `pay_invoice`     |
-| `Order`         | `Payment`                    | `checkout(payment)`               |
-| `Booking`       | `Payment`                    | `pay(payment)`                    |
-| `Storage`       | `Exhibit`                    | `place_exhibit`, `remove_exhibit` |
+| From            | Parameter                              | Method                            |
+|-----------------|----------------------------------------|-----------------------------------|
+| `TicketType`    | `Visitor`                              | `is_eligible(visitor)`            |
+| `TicketType`    | `Visitor`                              | `calculate_price(visitor)`        |
+| `Collection`    | `Exhibit`                              | `add_exhibit(exhibit)`            |
+| `Fund`          | `Exhibit`                              | `accept_item(exhibit)`            |
+| `Building`      | `Hall`, `Room`                         | `add_hall`, `add_room`            |
+| `Curator`       | `Loan`                                 | `approve_loan(loan)`              |
+| `Administrator` | `Loan`, `Invoice`, `Payment`, `Museum` | `approve_loan`, `pay_invoice`     |
+| `Order`         | `Payment`                              | `checkout(payment)`               |
+| `Booking`       | `Payment`                              | `pay(payment)`                    |
+| `Storage`       | `Exhibit`                              | `place_exhibit`, `remove_exhibit` |
 
 ---
 
@@ -193,7 +194,7 @@ used at least once in domain logic.
 | `RestorationException`             | `Restorer.restore_exhibit`, `Restorer.make_restoration_report`                                                                                                                                                                                                                                                                                           |
 | `LoanAlreadyActiveException`       | (reserved for future)                                                                                                                                                                                                                                                                                                                                    |
 | `LoanOverdueException`             | `Administrator.approve_loan`, `Curator.approve_loan`                                                                                                                                                                                                                                                                                                     |
-| `InsufficientFundsException`       | `Museum.spend_budget`, `MuseumCard.pay`                                                                                                                                                                                                                                                                                                                  |
+| `InsufficientFundsException`       | `Museum.spend_budget`, `MuseumCard.pay`, `Administrator.pay_invoice`                                                                                                                                                                                                                                                                                     |
 | `StorageCapacityExceededException` | `Storage.place_exhibit`                                                                                                                                                                                                                                                                                                                                  |
 | `AccessDeniedException`            | `Building.open_for_visitors`, `Showcase.open_showcase`, `AccessControl.require_access`                                                                                                                                                                                                                                                                   |
 | `ClimateControlException`          | (reserved for future)                                                                                                                                                                                                                                                                                                                                    |
