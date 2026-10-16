@@ -303,34 +303,57 @@ class TestAdministratorApproveLoan:
 class TestAdministratorPayInvoice:
 
 
-    def test_pay_success(self, administrator, fake_invoice, fake_payment_ok):
-        result = administrator.pay_invoice(fake_invoice, fake_payment_ok)
+    def test_pay_success(self, administrator, fake_invoice, fake_payment_ok, fake_museum):
+        budget_before = fake_museum.budget
+        result = administrator.pay_invoice(fake_invoice, fake_payment_ok, fake_museum)
         assert result is True
         assert fake_invoice.is_paid is True
         assert fake_invoice in administrator.invoices
+        assert fake_museum.budget == budget_before - fake_invoice.amount
 
-    def test_pay_none_invoice_raises(self, administrator, fake_payment_ok):
+    def test_pay_none_invoice_raises(self, administrator, fake_payment_ok, fake_museum):
         with pytest.raises(ValueError):
-            administrator.pay_invoice(None, fake_payment_ok)
+            administrator.pay_invoice(None, fake_payment_ok, fake_museum)
 
-    def test_pay_none_payment_raises(self, administrator, fake_invoice):
+    def test_pay_none_payment_raises(self, administrator, fake_invoice, fake_museum):
         with pytest.raises(ValueError):
-            administrator.pay_invoice(fake_invoice, None)
+            administrator.pay_invoice(fake_invoice, None, fake_museum)
 
-    def test_pay_amount_mismatch_raises(self, administrator, fake_invoice):
+    def test_pay_none_museum_raises(self, administrator, fake_invoice, fake_payment_ok):
+        with pytest.raises(ValueError):
+            administrator.pay_invoice(fake_invoice, fake_payment_ok, None)
+
+    def test_pay_amount_mismatch_raises(self, administrator, fake_invoice, fake_museum):
         wrong = FakePayment(amount=999.0)
         with pytest.raises(ValueError):
-            administrator.pay_invoice(fake_invoice, wrong)
+            administrator.pay_invoice(fake_invoice, wrong, fake_museum)
 
-    def test_pay_process_fails_raises(self, administrator, fake_invoice, fake_payment_fail):
+    def test_pay_process_fails_raises(self, administrator, fake_invoice, fake_payment_fail, fake_museum):
         from exceptions.PaymentFailedException import PaymentFailedException
+        budget_before = fake_museum.budget
         with pytest.raises(PaymentFailedException):
-            administrator.pay_invoice(fake_invoice, fake_payment_fail)
+            administrator.pay_invoice(fake_invoice, fake_payment_fail, fake_museum)
+        assert fake_museum.budget == budget_before
 
-    def test_pay_already_paid_invoice_raises(self, administrator, fake_invoice_paid, fake_payment_ok):
+    def test_pay_already_paid_invoice_raises(self, administrator, fake_invoice_paid, fake_payment_ok, fake_museum):
         from exceptions.InvalidExhibitStateException import InvalidExhibitStateException
+        budget_before = fake_museum.budget
         with pytest.raises(InvalidExhibitStateException):
-            administrator.pay_invoice(fake_invoice_paid, fake_payment_ok)
+            administrator.pay_invoice(fake_invoice_paid, fake_payment_ok, fake_museum)
+        assert fake_museum.budget == budget_before
+
+    def test_pay_real_invoice_spends_budget_once(self, administrator):
+        from museum_core.Museum import Museum
+        from museum_documents.Invoice import Invoice
+        from museum_sales.Payment import Payment
+        museum = Museum("Hermitage", "Palace Square 2", "hermitage.ru")
+        museum.set_budget(50_000)
+        invoice = Invoice(1000.0, "Hermitage")
+        payment = Payment(1000.0, Payment.METHOD_CARD)
+        administrator.pay_invoice(invoice, payment, museum)
+        assert invoice.is_paid is True
+        assert payment.is_paid is True
+        assert museum.budget == 49_000
 
 
 class TestAdministratorHire:

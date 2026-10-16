@@ -65,30 +65,45 @@ class Administrator(Employee):
             raise LoanOverdueException()
         return loan.approve_loan()
 
-    def pay_invoice(self, invoice, payment):
-        """Pay an invoice.
+    def pay_invoice(self, invoice, payment, museum):
+        """Pay a supplier invoice from the museum budget.
+
+        The museum is the payer, so budget decreases. The payment is
+        processed once, inside `invoice.pay` — not before it.
 
         Raises:
-            ValueError: If invoice or payment is None, or amount mismatch.
+            ValueError: If invoice, payment or museum is None, or amounts
+                do not match.
+            InsufficientFundsException: If the museum cannot cover the bill.
             InvalidExhibitStateException: If the invoice was already paid
-                or if the payment is not pending.
+                or the payment is not pending.
+            PaymentFailedException: Propagated if the payment fails.
         """
         if invoice is None:
             raise ValueError("Invoice must not be None")
         if payment is None:
             raise ValueError("Payment must not be None")
+        if museum is None:
+            raise ValueError("Museum must not be None")
         if payment.amount != invoice.amount:
             raise ValueError(
                 f"Payment amount {payment.amount} does not match "
                 f"invoice amount {invoice.amount}"
             )
-        payment.process()
-        if not invoice.pay(payment):
-            raise InvalidExhibitStateException(
-                exhibit_title=f"INV {invoice.amount}",
-                state="already_paid",
-                reason="Invoice has already been paid",
-            )
+
+        museum.spend_budget(invoice.amount)
+        try:
+            paid = invoice.pay(payment)
+            if not paid:
+                raise InvalidExhibitStateException(
+                    exhibit_title=f"INV {invoice.amount}",
+                    state="already_paid",
+                    reason="Invoice has already been paid",
+                )
+        except Exception:
+            museum.increase_budget(invoice.amount)
+            raise
+
         self._invoices.append(invoice)
         return True
 

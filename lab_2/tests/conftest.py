@@ -639,6 +639,7 @@ class FakeInvoice:
     def pay(self, payment):
         if self._paid:
             return False
+        payment.process()
         self._paid = True
         return True
 
@@ -701,6 +702,17 @@ class FakeMuseumForAdmin:
         if employee not in self._employees:
             raise ValueError("Employee not in museum")
         self._employees.remove(employee)
+        return True
+
+    def spend_budget(self, amount):
+        from exceptions.InsufficientFundsException import InsufficientFundsException
+        if amount > self._budget:
+            raise InsufficientFundsException(required=amount, available=self._budget)
+        self._budget -= amount
+        return True
+
+    def increase_budget(self, amount):
+        self._budget += amount
         return True
 
 

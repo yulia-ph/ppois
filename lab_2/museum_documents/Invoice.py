@@ -4,7 +4,11 @@ from exceptions.InvalidExhibitStateException import InvalidExhibitStateException
 
 
 class Invoice:
-    """An invoice issued to a payer.
+    """A bill the museum must pay (supplier, restorer, insurer, etc.).
+
+    `payer` is who settles the bill — here that is the museum.
+    Paying goes through `Administrator.pay_invoice`, which also spends
+    museum budget.
 
     An invoice moves through states:
 
