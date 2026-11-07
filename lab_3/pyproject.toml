@@ -1,0 +1,54 @@
+[project]
+name = "lab_3"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.16.7",
+    "pyinstaller==6.22.3",
+    "pdoc==15.0.4",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+ignore = [
+    "DTZ011",   # date.today()
+    "DTZ005",   # datetime.now()
+    "DTZ007",   # datetime.strptime
+    "DTZ001",   # datetime.datetime()
+    "N999",     # CamelCase files = one class per file
+    "RUF012",   # class-level dicts/sets are constants
+    "BLE001",   # blind except in main.py is intentional
+    "RUF013",   # legacy X = None style (or fix manually)
+]
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = [
+    "logistics_core",
+    "logistics_fleet",
+    "logistics_cargo",
+    "logistics_people",
+    "logistics_orders",
+    "logistics_routes",
+    "logistics_warehouse",
+    "logistics_documents",
+]
+omit = [
+    "main.py",
+    "tests/*",
+    "*/__init__.py",
+]
