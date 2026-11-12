@@ -7,10 +7,6 @@ invoices, and incidents.
 The project is written in pure Python 3, uses no external
 dependencies at runtime, and is fully covered by pytest tests.
 
-This is a specification for Lab 3. Implementation comes next; class
-counts below are the target model, not a description of already-written
-code.
-
 ---
 
 ## Inheritance
