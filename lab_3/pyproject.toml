@@ -50,5 +50,6 @@ source = [
 omit = [
     "main.py",
     "tests/*",
+    "tests/**",
     "*/__init__.py",
 ]
