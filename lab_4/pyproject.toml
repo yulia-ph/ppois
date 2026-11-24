@@ -38,6 +38,8 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 source = [
+    "sorting",
+    "graph",
 ]
 
 omit = [
