@@ -1,0 +1,60 @@
+name: Lab 4 CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v4*' ]
+    paths:
+      - 'lab_4/**'
+      - '.github/workflows/lab_4-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'lab_4/**'
+
+jobs:
+  test-and-build:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        working-directory: lab_4
+        run: uv sync --all-extras
+
+      - name: Lint with ruff
+        working-directory: lab_4
+        run: uv run ruff check .
+
+      - name: Test with coverage
+        working-directory: lab_4
+        run: |
+          uv run pytest tests/ \
+            --cov=sorting --cov=graph \
+            --cov-report=term-missing --cov-fail-under=90
+
+      - name: Build demo binary
+        working-directory: lab_4
+        run: uv run pyinstaller --onefile --name lab4-demo main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab_4-binary
+          path: lab_4/dist/lab4-demo
+
+      - name: Publish to Releases
+        if: startsWith(github.ref, 'refs/tags/v4')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            lab_4/dist/lab4-demo
